@@ -3,10 +3,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from apps.dashboard.views import CustomLoginView
 
 urlpatterns = [
+    path('health/', lambda request: HttpResponse('OK')),
     path('admin/', admin.site.urls),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/login/'), name='logout'),

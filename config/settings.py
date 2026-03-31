@@ -4,13 +4,27 @@ import environ
 # BASE_DIR apunta a ~/stockplus/
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Leer el archivo .env
 env = environ.Env()
-environ.Env.read_env(BASE_DIR / '.env')
+env_file = BASE_DIR / '.env'
+if env_file.exists():
+    environ.Env.read_env(env_file)
 
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = env.bool('DEBUG', default=True)
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1']) + ['192.168.0.*', '192.168.2.*']
+DJANGO_ENV = env('DJANGO_ENV', default='development')
+IS_PRODUCTION = DJANGO_ENV == 'production'
+
+DEBUG = False if IS_PRODUCTION else env.bool('DEBUG', default=True)
+
+if IS_PRODUCTION:
+    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
+else:
+    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+    ALLOWED_HOSTS += ['192.168.0.*', '192.168.2.*', '192.168.0.22']
+    import socket
+    try:
+        ALLOWED_HOSTS += [socket.gethostname(), socket.gethostbyname(socket.gethostname())]
+    except Exception:
+        pass
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -26,16 +40,21 @@ INSTALLED_APPS = [
     'apps.dashboard',
     'apps.gastos',
     'apps.finanzas',
+    'crispy_forms',
+    'crispy_bootstrap5',
+    'django_htmx',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -77,6 +96,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -87,23 +107,17 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-# Permitir cualquier host en desarrollo local
-# En producción esto se reemplaza con el dominio real
-import socket
-try:
-    ALLOWED_HOSTS += [socket.gethostname(), socket.gethostbyname(socket.gethostname())]
-except:
-    pass
-ALLOWED_HOSTS += ['192.168.0.22', '192.168.2.0/24']
-
-# Librerías de UI
-INSTALLED_APPS += [
-    'crispy_forms',
-    'crispy_bootstrap5',
-    'django_htmx',
-]
-
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
-MIDDLEWARE += ['django_htmx.middleware.HtmxMiddleware']
+NEGOCIO_NOMBRE = env('NEGOCIO_NOMBRE', default='StockPlus')
+NEGOCIO_WHATSAPP = env('NEGOCIO_WHATSAPP', default='')
+STOCK_ALERTA_MINIMO = env.int('STOCK_ALERTA_MINIMO', default=5)
+
+if IS_PRODUCTION:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
