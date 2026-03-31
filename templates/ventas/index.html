@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load formato_guaranies %}
+{% block title %}Ventas{% endblock %}
+{% block nav_ventas %}active{% endblock %}
+{% block page_title %}Ventas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <input type="search" id="buscador" class="form-control" placeholder="Buscar venta..." style="width:280px">
+  <a href="{% url 'ventas:nueva' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg"></i> Nueva venta
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    Ventas <span class="badge bg-secondary">{{ ventas.count }}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Número</th>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Canal</th>
+          <th>Productos</th>
+          <th class="text-end">Total</th>
+          <th class="text-center">Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tabla-ventas">
+        {% for v in ventas %}
+        <tr data-search="{{ v.numero }} {{ v.cliente_nombre }} {{ v.get_canal_display }}{% for item in v.items.all %} {{ item.producto.codigo }} {{ item.producto.nombre }}{% endfor %}">
+          <td><span class="badge bg-light text-dark">{{ v.numero }}</span></td>
+          <td>{{ v.fecha }}</td>
+          <td>{{ v.cliente_nombre|default:"—" }}</td>
+          <td><span class="badge bg-secondary">{{ v.get_canal_display }}</span></td>
+          <td>{{ v.items.count }} producto{{ v.items.count|pluralize }}</td>
+          <td class="text-end fw-semibold">{{ v.total|gs }}</td>
+          <td class="text-center">
+            {% if v.estado == 'confirmada' %}
+              <span class="badge bg-success">Confirmada</span>
+            {% elif v.estado == 'borrador' %}
+              <span class="badge bg-warning text-dark">Borrador</span>
+            {% elif v.estado == 'cancelada' %}
+              <span class="badge bg-danger">Cancelada</span>
+            {% elif v.estado == 'entregada' %}
+              <span class="badge bg-info text-dark">Entregada</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ v.get_estado_display }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{% url 'ventas:detalle' v.pk %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-eye"></i>
+              </a>
+              {% if v.estado == 'borrador' %}
+              <a href="{% url 'ventas:editar' v.pk %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil"></i>
+              </a>
+              {% endif %}
+              <a href="{% url 'ventas:eliminar' v.pk %}" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center py-5 text-muted">
+            <i class="bi bi-cart-plus fs-1 d-block mb-2"></i>
+            No hay ventas todavía.
+            <a href="{% url 'ventas:nueva' %}">Registrar la primera</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('buscador').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#tabla-ventas tr').forEach(tr => {
+    const texto = (tr.dataset.search || tr.textContent).toLowerCase();
+    tr.style.display = texto.includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load formato_guaranies %}
+{% block title %}{{ venta.numero }}{% endblock %}
+{% block nav_ventas %}active{% endblock %}
+{% block page_title %}Venta {{ venta.numero }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">Datos generales</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-5">Número</dt>
+          <dd class="col-7">{{ venta.numero }}</dd>
+          <dt class="col-5">Fecha</dt>
+          <dd class="col-7">{{ venta.fecha }}</dd>
+          <dt class="col-5">Cliente</dt>
+          <dd class="col-7">{{ venta.cliente_nombre|default:"—" }}</dd>
+          <dt class="col-5">Teléfono</dt>
+          <dd class="col-7">{{ venta.cliente_telefono|default:"—" }}</dd>
+          <dt class="col-5">Canal</dt>
+          <dd class="col-7"><span class="badge bg-secondary">{{ venta.get_canal_display }}</span></dd>
+          <dt class="col-5">Estado</dt>
+          <dd class="col-7">
+            {% if venta.estado == 'confirmada' %}
+              <span class="badge bg-success">Confirmada</span>
+            {% elif venta.estado == 'borrador' %}
+              <span class="badge bg-warning text-dark">Borrador</span>
+            {% elif venta.estado == 'cancelada' %}
+              <span class="badge bg-danger">Cancelada</span>
+            {% elif venta.estado == 'entregada' %}
+              <span class="badge bg-info text-dark">Entregada</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ venta.get_estado_display }}</span>
+            {% endif %}
+          </dd>
+          {% if venta.observaciones %}
+          <dt class="col-5">Observaciones</dt>
+          <dd class="col-7">{{ venta.observaciones }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header">Resumen</div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Subtotal productos</span>
+          <span>{{ venta.subtotal_productos|gs }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Adicionales</span>
+          <span>{{ venta.total_adicionales|gs }}</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between fw-bold fs-5">
+          <span>Total</span>
+          <span>{{ venta.total|gs }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-grid gap-2 mt-3">
+      {% if venta.estado == 'borrador' %}
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-check-circle"></i> Confirmar y descontar stock
+        </button>
+      </form>
+      <a href="{% url 'ventas:editar' venta.pk %}" class="btn btn-outline-primary">
+        <i class="bi bi-pencil"></i> Editar venta
+      </a>
+      {% endif %}
+      <a href="{% url 'ventas:eliminar' venta.pk %}" class="btn btn-outline-danger">
+        <i class="bi bi-trash"></i> Eliminar venta
+      </a>
+      <a href="{% url 'ventas:index' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a ventas
+      </a>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header"><i class="bi bi-box-seam"></i> Productos</div>
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Código</th>
+              <th>Producto</th>
+              <th class="text-center">Cant.</th>
+              <th class="text-end">Precio unit.</th>
+              <th class="text-center">Dto. %</th>
+              <th class="text-end">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in venta.items.all %}
+            <tr>
+              <td><span class="badge bg-light text-dark">{{ item.producto.codigo }}</span></td>
+              <td>{{ item.producto }}</td>
+              <td class="text-center">{{ item.cantidad }}</td>
+              <td class="text-end">{{ item.precio_unitario|gs }}</td>
+              <td class="text-center">{% if item.descuento %}{{ item.descuento }}%{% else %}—{% endif %}</td>
+              <td class="text-end fw-semibold">{{ item.subtotal|gs }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% if venta.adicionales.all %}
+    <div class="card">
+      <div class="card-header"><i class="bi bi-receipt"></i> Adicionales</div>
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Concepto</th>
+              <th>Descripción</th>
+              <th>A cargo de</th>
+              <th class="text-end">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in venta.adicionales.all %}
+            <tr>
+              <td>{{ a.concepto.nombre }}</td>
+              <td>{{ a.descripcion|default:"—" }}</td>
+              <td><span class="badge bg-light text-dark">{{ a.get_a_cargo_de_display }}</span></td>
+              <td class="text-end fw-semibold {% if a.monto < 0 %}text-danger{% endif %}">{{ a.monto|gs }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

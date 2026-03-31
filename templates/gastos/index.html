@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load formato_guaranies %}
+{% block title %}Gastos{% endblock %}
+{% block nav_gastos %}active{% endblock %}
+{% block page_title %}Gastos generales{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <form method="get" class="d-flex gap-2 flex-wrap">
+    <input type="search" name="q" value="{{ busqueda }}" class="form-control"
+           placeholder="Buscar descripción..." style="width:220px">
+    <select name="concepto" class="form-select" style="width:200px" onchange="this.form.submit()">
+      <option value="">Todos los conceptos</option>
+      {% for c in conceptos %}
+      <option value="{{ c.id }}" {% if concepto_filtro == c.id|stringformat:"s" %}selected{% endif %}>
+        {{ c.nombre }}
+      </option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-outline-secondary">
+      <i class="bi bi-funnel"></i> Filtrar
+    </button>
+    {% if busqueda or concepto_filtro %}
+    <a href="{% url 'gastos:index' %}" class="btn btn-outline-secondary">
+      <i class="bi bi-x-lg"></i>
+    </a>
+    {% endif %}
+  </form>
+  <a href="{% url 'gastos:nuevo' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg"></i> Nuevo gasto
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Gastos <span class="badge bg-secondary">{{ gastos.count }}</span></span>
+    {% if gastos %}
+    <span class="text-muted small fw-normal">
+      Total filtrado: <strong>Gs. {% with total=gastos|length %}{% for g in gastos %}{% if forloop.last %}{{ gastos.count }}{% endif %}{% endfor %}{% endwith %}</strong>
+    </span>
+    {% endif %}
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Fecha</th>
+          <th>Concepto</th>
+          <th>Descripción</th>
+          <th class="text-end">Monto</th>
+          <th>Comprobante</th>
+          <th>Registrado por</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tabla-gastos">
+        {% for g in gastos %}
+        <tr>
+          <td>{{ g.fecha }}</td>
+          <td><span class="badge bg-light text-dark">{{ g.concepto.nombre }}</span></td>
+          <td>{{ g.descripcion|default:"—" }}</td>
+          <td class="text-end fw-semibold">{{ g.monto|gs }}</td>
+          <td>{{ g.comprobante|default:"—" }}</td>
+          <td class="text-muted small">{% if g.creado_por %}{{ g.creado_por.get_short_name }}{% else %}—{% endif %}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{% url 'gastos:editar' g.pk %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'gastos:eliminar' g.pk %}" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center py-5 text-muted">
+            <i class="bi bi-receipt fs-1 d-block mb-2"></i>
+            No hay gastos registrados.
+            <a href="{% url 'gastos:nuevo' %}">Registrar el primero</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,484 @@
+{% extends 'base.html' %}
+{% block title %}{% if venta %}Editar {{ venta.numero }}{% else %}Nueva venta{% endif %}{% endblock %}
+{% block nav_ventas %}active{% endblock %}
+{% block page_title %}{% if venta %}Editar {{ venta.numero }}{% else %}Nueva venta{% endif %}{% endblock %}
+
+{% block content %}
+<style>
+.autocomplete-wrap { position: relative; }
+.autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  z-index: 1050;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.14);
+  max-height: 360px;
+  overflow-y: auto;
+  display: none;
+}
+.autocomplete-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.1s;
+  min-height: 56px;
+}
+.autocomplete-item:last-child { border-bottom: none; }
+.autocomplete-item:hover, .autocomplete-item.active { background: #eef2ff; }
+@media (max-width: 991.98px) {
+  .total-sticky-mobile {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 1040;
+    background: #fff;
+    border-top: 2px solid #0d6efd;
+    padding: 10px 16px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,.12);
+  }
+  body { padding-bottom: 68px; }
+  .input-touch { min-height: 46px !important; font-size: 1rem !important; }
+}
+</style>
+
+<form method="post" id="form-venta">
+{% csrf_token %}
+<div class="row g-4">
+
+  <!-- ── SIDEBAR ────────────────────────────────────── -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">Datos del cliente y venta</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Fecha <span class="text-danger">*</span></label>
+          <input type="date" name="fecha" class="form-control input-touch" id="fecha-venta"
+                 value="{% if venta %}{{ venta.fecha|date:'Y-m-d' }}{% endif %}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Nombre del cliente</label>
+          <input type="text" name="cliente_nombre" class="form-control input-touch"
+                 placeholder="Nombre del comprador"
+                 value="{% if venta %}{{ venta.cliente_nombre }}{% endif %}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Teléfono</label>
+          <input type="text" name="cliente_telefono" class="form-control input-touch"
+                 placeholder="Ej: 0981-123456"
+                 value="{% if venta %}{{ venta.cliente_telefono }}{% endif %}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Canal de venta</label>
+          <select name="canal" class="form-select input-touch">
+            <option value="whatsapp"   {% if not venta or venta.canal == 'whatsapp' %}selected{% endif %}>WhatsApp</option>
+            <option value="presencial" {% if venta and venta.canal == 'presencial' %}selected{% endif %}>Presencial</option>
+            <option value="instagram"  {% if venta and venta.canal == 'instagram' %}selected{% endif %}>Instagram</option>
+            <option value="facebook"   {% if venta and venta.canal == 'facebook' %}selected{% endif %}>Facebook</option>
+            <option value="ecommerce"  {% if venta and venta.canal == 'ecommerce' %}selected{% endif %}>Tienda online</option>
+            <option value="otro"       {% if venta and venta.canal == 'otro' %}selected{% endif %}>Otro</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Observaciones</label>
+          <textarea name="observaciones" class="form-control" rows="3">{% if venta %}{{ venta.observaciones }}{% endif %}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen visible solo en desktop (en mobile hay barra sticky abajo) -->
+    <div class="card mt-3 d-none d-lg-block">
+      <div class="card-header">Resumen</div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Subtotal productos</span>
+          <span id="resumen-productos">Gs. 0</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Adicionales / descuentos</span>
+          <span id="resumen-adicionales">Gs. 0</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between fw-bold fs-5">
+          <span>Total</span>
+          <span id="resumen-total">Gs. 0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-grid gap-2 mt-3">
+      <button type="submit" name="accion" value="confirmar" class="btn btn-primary btn-lg">
+        <i class="bi bi-check-circle"></i> Confirmar y descontar stock
+      </button>
+      <button type="submit" name="accion" value="borrador" class="btn btn-outline-secondary">
+        <i class="bi bi-save"></i> {% if venta %}Guardar cambios{% else %}Guardar como borrador{% endif %}
+      </button>
+      <a href="{% if venta %}{% url 'ventas:detalle' venta.pk %}{% else %}{% url 'ventas:index' %}{% endif %}"
+         class="btn btn-outline-danger">Cancelar</a>
+    </div>
+  </div>
+
+  <!-- ── MAIN ──────────────────────────────────────── -->
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <i class="bi bi-box-seam"></i> Productos vendidos
+      </div>
+
+      <!-- Buscador autocomplete -->
+      <div class="card-body border-bottom pb-3">
+        <div class="autocomplete-wrap">
+          <input type="text" id="buscar-producto"
+                 class="form-control form-control-lg input-touch"
+                 placeholder="Buscar por código, nombre, modelo o color..."
+                 autocomplete="off" spellcheck="false"
+                 aria-label="Buscar producto">
+          <div id="dropdown-productos" class="autocomplete-dropdown" role="listbox"></div>
+        </div>
+        <div class="text-muted small mt-2">
+          <i class="bi bi-info-circle"></i> Escribí para buscar y tocá para agregar al listado
+        </div>
+      </div>
+
+      <!-- Tabla de productos -->
+      <div class="table-responsive">
+        <table class="table align-middle mb-0" id="tabla-productos">
+          <thead class="table-light">
+            <tr>
+              <th>Producto</th>
+              <th style="width:90px">Cant.</th>
+              <th style="width:140px">Precio (Gs.)</th>
+              <th style="width:85px">Dto. %</th>
+              <th style="width:120px">Subtotal</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="items-productos"></tbody>
+        </table>
+      </div>
+      <div id="empty-productos" class="text-center py-4 text-muted px-3">
+        <i class="bi bi-search fs-2 d-block mb-2 opacity-50"></i>
+        Buscá un producto arriba para agregar
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-receipt"></i> Adicionales (delivery, descuentos…)</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="agregarAdicional()">
+          <i class="bi bi-plus-lg"></i> Agregar
+        </button>
+      </div>
+      <div class="card-body p-0">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Concepto</th>
+              <th>Descripción</th>
+              <th style="width:140px">Monto (Gs.)</th>
+              <th style="width:110px">A cargo de</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="items-adicionales"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+
+<!-- Barra total sticky en mobile -->
+<div class="total-sticky-mobile d-lg-none">
+  <div class="d-flex justify-content-between align-items-center">
+    <span class="text-muted small">
+      Sub: <strong id="resumen-productos-m">Gs. 0</strong>
+      &nbsp;|&nbsp;
+      Ad: <strong id="resumen-adicionales-m">Gs. 0</strong>
+    </span>
+    <span class="fw-bold fs-6">Total: <span id="resumen-total-m" class="text-primary">Gs. 0</span></span>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+{% if not venta %}
+document.getElementById('fecha-venta').valueAsDate = new Date();
+{% endif %}
+
+const PRODUCTOS = [
+  {% for p in productos %}{
+    id: {{ p.pk }},
+    codigo: "{{ p.codigo|escapejs }}",
+    nombre: "{{ p.nombre|escapejs }}",
+    modelo: "{{ p.modelo_celular|escapejs }}",
+    color: "{{ p.color|escapejs }}",
+    stock: {{ p.stock_disponible }},
+    precio_venta: {{ p.precio_venta }},
+    precio_costo: {{ p.precio_costo }},
+  },{% endfor %}
+];
+
+const CONCEPTOS = [
+  {% for c in conceptos %}{id: {{ c.pk }}, texto: "{{ c.nombre|escapejs }}"},{% endfor %}
+];
+
+function getNombre(p) {
+  const partes = [p.nombre];
+  if (p.modelo) partes.push(p.modelo);
+  if (p.color) partes.push(p.color);
+  return partes.join(' / ');
+}
+
+function formatGs(n) {
+  return 'Gs. ' + Math.round(n).toLocaleString('es-PY');
+}
+
+// ── Autocomplete ──────────────────────────────────────────────────────────────
+
+let highlightIdx = -1;
+
+const inputBuscar = document.getElementById('buscar-producto');
+const ddProductos = document.getElementById('dropdown-productos');
+
+inputBuscar.addEventListener('input', function () {
+  const q = this.value.trim();
+  highlightIdx = -1;
+  if (!q) { cerrarDropdown(); return; }
+  const q_lower = q.toLowerCase();
+  const resultados = PRODUCTOS.filter(p => {
+    const haystack = (p.codigo + ' ' + p.nombre + ' ' + p.modelo + ' ' + p.color).toLowerCase();
+    return haystack.includes(q_lower);
+  }).slice(0, 15);
+  mostrarDropdown(resultados);
+});
+
+inputBuscar.addEventListener('keydown', function (e) {
+  const items = ddProductos.querySelectorAll('.autocomplete-item[data-id]');
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    highlightIdx = Math.min(highlightIdx + 1, items.length - 1);
+    actualizarHighlight(items);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    highlightIdx = Math.max(highlightIdx - 1, 0);
+    actualizarHighlight(items);
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (highlightIdx >= 0 && items[highlightIdx]) items[highlightIdx].click();
+  } else if (e.key === 'Escape') {
+    cerrarDropdown();
+  }
+});
+
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.autocomplete-wrap')) cerrarDropdown();
+});
+
+function actualizarHighlight(items) {
+  items.forEach((el, i) => el.classList.toggle('active', i === highlightIdx));
+  if (highlightIdx >= 0) items[highlightIdx].scrollIntoView({ block: 'nearest' });
+}
+
+function mostrarDropdown(resultados) {
+  if (!resultados.length) {
+    ddProductos.innerHTML = '<div class="autocomplete-item text-muted fst-italic">Sin resultados</div>';
+    ddProductos.style.display = 'block';
+    return;
+  }
+  ddProductos.innerHTML = resultados.map(p => {
+    const nombre = getNombre(p);
+    const stockBadge = p.stock <= 0
+      ? '<span class="badge bg-danger ms-1">Sin stock</span>'
+      : `<span class="badge bg-success ms-1">Stock: ${p.stock}</span>`;
+    return `<div class="autocomplete-item" data-id="${p.id}" role="option"
+              onclick="seleccionarProducto(${p.id})">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div>
+            <span class="badge bg-secondary">${p.codigo}</span>
+            <strong class="ms-1">${nombre}</strong>
+            ${stockBadge}
+          </div>
+          <span class="text-muted small text-nowrap">${formatGs(p.precio_venta)}</span>
+        </div>
+      </div>`;
+  }).join('');
+  ddProductos.style.display = 'block';
+}
+
+function cerrarDropdown() {
+  ddProductos.style.display = 'none';
+  highlightIdx = -1;
+}
+
+function seleccionarProducto(id) {
+  const p = PRODUCTOS.find(x => x.id === id);
+  if (!p) return;
+  agregarFilaProducto(p);
+  inputBuscar.value = '';
+  cerrarDropdown();
+  inputBuscar.focus();
+}
+
+// ── Filas de producto ─────────────────────────────────────────────────────────
+
+function agregarFilaProducto(p, precioOverride = null, cantOverride = 1, dtoOverride = 0) {
+  document.getElementById('empty-productos').style.display = 'none';
+  const tbody = document.getElementById('items-productos');
+  const precio = precioOverride !== null ? precioOverride : p.precio_venta;
+  const nombre = getNombre(p);
+  const sinStock = p.stock <= 0;
+  const stockInfo = sinStock
+    ? '<span class="badge bg-warning text-dark">⚠ Sin stock — se va a agregar igual</span>'
+    : `<span class="text-muted small">Stock disp.: ${p.stock}</span>`;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>
+      <input type="hidden" name="producto_id[]" value="${p.id}">
+      <span class="badge bg-secondary">${p.codigo}</span>
+      <span class="fw-semibold ms-1">${nombre}</span><br>
+      ${stockInfo}
+    </td>
+    <td>
+      <input type="number" name="cantidad[]"
+             class="form-control form-control-sm input-touch"
+             value="${cantOverride}" min="1" oninput="recalcular()">
+    </td>
+    <td>
+      <input type="number" name="precio_unitario[]"
+             class="form-control form-control-sm precio-unit input-touch"
+             value="${precio}" min="0" oninput="recalcular()">
+    </td>
+    <td>
+      <input type="number" name="descuento[]"
+             class="form-control form-control-sm input-touch"
+             value="${dtoOverride}" min="0" max="100" step="0.01" oninput="recalcular()">
+    </td>
+    <td><span class="subtotal-item fw-semibold">Gs. 0</span></td>
+    <td>
+      <button type="button" class="btn btn-sm btn-outline-danger"
+              onclick="this.closest('tr').remove(); actualizarEmptyState(); recalcular()">
+        <i class="bi bi-x"></i>
+      </button>
+    </td>
+  `;
+  tbody.appendChild(tr);
+  recalcular();
+}
+
+function agregarFilaHuerfana(pid, precio, cant, dto) {
+  document.getElementById('empty-productos').style.display = 'none';
+  const tbody = document.getElementById('items-productos');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>
+      <input type="hidden" name="producto_id[]" value="${pid}">
+      <span class="text-muted fst-italic">Producto #${pid}</span>
+    </td>
+    <td><input type="number" name="cantidad[]" class="form-control form-control-sm" value="${cant}" min="1" oninput="recalcular()"></td>
+    <td><input type="number" name="precio_unitario[]" class="form-control form-control-sm precio-unit" value="${precio}" min="0" oninput="recalcular()"></td>
+    <td><input type="number" name="descuento[]" class="form-control form-control-sm" value="${dto}" min="0" max="100" step="0.01" oninput="recalcular()"></td>
+    <td><span class="subtotal-item fw-semibold">Gs. 0</span></td>
+    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove();actualizarEmptyState();recalcular()"><i class="bi bi-x"></i></button></td>
+  `;
+  tbody.appendChild(tr);
+  recalcular();
+}
+
+function actualizarEmptyState() {
+  const vacio = document.getElementById('items-productos').children.length === 0;
+  document.getElementById('empty-productos').style.display = vacio ? 'block' : 'none';
+}
+
+// ── Adicionales ───────────────────────────────────────────────────────────────
+
+function agregarAdicional() {
+  const tbody = document.getElementById('items-adicionales');
+  const opts = CONCEPTOS.map(c => `<option value="${c.id}">${c.texto}</option>`).join('');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>
+      <select name="concepto_id[]" class="form-select form-select-sm" required>
+        <option value="">Seleccionar...</option>${opts}
+      </select>
+    </td>
+    <td><input type="text" name="adicional_desc[]" class="form-control form-control-sm" placeholder="Detalle opcional"></td>
+    <td><input type="number" name="adicional_monto[]" class="form-control form-control-sm" value="0" oninput="recalcular()"></td>
+    <td>
+      <select name="a_cargo_de[]" class="form-select form-select-sm">
+        <option value="cliente">Cliente</option>
+        <option value="negocio">Negocio</option>
+      </select>
+    </td>
+    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove();recalcular()"><i class="bi bi-x"></i></button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function agregarAdicionalExistente(cid, desc, monto, cargo) {
+  agregarAdicional();
+  const rows = document.querySelectorAll('#items-adicionales tr');
+  const tr = rows[rows.length - 1];
+  tr.querySelector('select[name="concepto_id[]"]').value = cid;
+  tr.querySelector('[name="adicional_desc[]"]').value = desc;
+  tr.querySelector('[name="adicional_monto[]"]').value = monto;
+  tr.querySelector('[name="a_cargo_de[]"]').value = cargo;
+  recalcular();
+}
+
+// ── Recalcular totales ────────────────────────────────────────────────────────
+
+function recalcular() {
+  let totalProd = 0;
+  document.querySelectorAll('#items-productos tr').forEach(tr => {
+    const cant   = parseFloat(tr.querySelector('[name="cantidad[]"]')?.value) || 0;
+    const precio = parseFloat(tr.querySelector('[name="precio_unitario[]"]')?.value) || 0;
+    const dto    = parseFloat(tr.querySelector('[name="descuento[]"]')?.value) || 0;
+    const sub    = cant * precio * (1 - dto / 100);
+    totalProd += sub;
+    const span = tr.querySelector('.subtotal-item');
+    if (span) span.textContent = formatGs(sub);
+  });
+  let totalAd = 0;
+  document.querySelectorAll('#items-adicionales tr').forEach(tr => {
+    totalAd += parseFloat(tr.querySelector('[name="adicional_monto[]"]')?.value) || 0;
+  });
+  const total = totalProd + totalAd;
+  // Desktop
+  const rp = document.getElementById('resumen-productos');
+  const ra = document.getElementById('resumen-adicionales');
+  const rt = document.getElementById('resumen-total');
+  if (rp) rp.textContent = formatGs(totalProd);
+  if (ra) ra.textContent = formatGs(totalAd);
+  if (rt) rt.textContent = formatGs(total);
+  // Mobile sticky
+  const rpm = document.getElementById('resumen-productos-m');
+  const ram = document.getElementById('resumen-adicionales-m');
+  const rtm = document.getElementById('resumen-total-m');
+  if (rpm) rpm.textContent = formatGs(totalProd);
+  if (ram) ram.textContent = formatGs(totalAd);
+  if (rtm) rtm.textContent = formatGs(total);
+}
+
+// ── Inicialización ────────────────────────────────────────────────────────────
+
+{% if venta %}
+const ITEMS_EXISTENTES = [
+  {% for item in venta.items.all %}{pid:{{ item.producto_id }},precio:{{ item.precio_unitario }},cant:{{ item.cantidad }},dto:{{ item.descuento }}},{% endfor %}
+];
+const ADICIONALES_EXISTENTES = [
+  {% for a in venta.adicionales.all %}{cid:{{ a.concepto_id }},desc:"{{ a.descripcion|escapejs }}",monto:{{ a.monto }},cargo:"{{ a.a_cargo_de }}"},{% endfor %}
+];
+ITEMS_EXISTENTES.forEach(item => {
+  const p = PRODUCTOS.find(x => x.id === item.pid);
+  if (p) agregarFilaProducto(p, item.precio, item.cant, item.dto);
+  else   agregarFilaHuerfana(item.pid, item.precio, item.cant, item.dto);
+});
+ADICIONALES_EXISTENTES.forEach(ad => agregarAdicionalExistente(ad.cid, ad.desc, ad.monto, ad.cargo));
+{% endif %}
+</script>
+{% endblock %}

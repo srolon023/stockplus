@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% load formato_guaranies %}
+{% block title %}E-commerce{% endblock %}
+{% block nav_ecommerce %}active{% endblock %}
+{% block page_title %}Gestión de tienda online{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <ul class="nav nav-tabs card-header-tabs mb-0" id="ecommerceTabs">
+      <li class="nav-item">
+        <a class="nav-link {% if tab == 'catalogo' %}active{% endif %}"
+           href="?tab=catalogo">
+          <i class="bi bi-grid-3x3-gap"></i> Catálogo web
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if tab == 'promos' %}active{% endif %}"
+           href="?tab=promos">
+          <i class="bi bi-tags"></i> Promos
+        </a>
+      </li>
+      <li class="nav-item position-relative">
+        <a class="nav-link {% if tab == 'pedidos' %}active{% endif %}"
+           href="?tab=pedidos">
+          <i class="bi bi-bag-check"></i> Pedidos web
+          {% if pendientes %}
+            <span class="badge bg-danger ms-1">{{ pendientes }}</span>
+          {% endif %}
+        </a>
+      </li>
+    </ul>
+    <a href="/tienda/" target="_blank" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-box-arrow-up-right"></i> Ver tienda
+    </a>
+  </div>
+
+  <div class="card-body p-0">
+
+    {# ── Tab: Catálogo ──────────────────────────────────────────────────── #}
+    {% if tab == 'catalogo' %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width:80px">Código</th>
+            <th>Producto</th>
+            <th class="text-end" style="width:140px">P. Venta</th>
+            <th style="width:180px">Precio web</th>
+            <th class="text-center" style="width:90px">Visible</th>
+            <th class="text-center" style="width:100px">Destacado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for producto in productos %}
+          <tr {% if producto.qty_stock <= 0 %}class="table-secondary"{% endif %}>
+            <td class="text-muted small font-monospace">{{ producto.codigo }}</td>
+            <td>
+              <div class="fw-semibold">{{ producto.nombre }}</div>
+              {% if producto.categoria %}<div class="text-muted small">{{ producto.categoria.nombre }}</div>{% endif %}
+              {% if producto.qty_stock <= 0 %}
+                <span class="badge bg-danger" style="font-size:.65rem;">
+                  <i class="bi bi-exclamation-circle"></i> Sin stock
+                </span>
+              {% endif %}
+            </td>
+            <td class="text-end text-muted small">
+              {{ producto.precio_venta|gs }}
+            </td>
+
+            {% if producto.producto_web %}
+            {% with pw=producto.producto_web %}
+
+            {# Precio web editable #}
+            <td>
+              <form method="post"
+                    action="{% url 'ecommerce:precio_web_editar' pw.pk %}"
+                    class="d-flex gap-1">
+                {% csrf_token %}
+                <input type="number" name="precio_web"
+                       value="{{ pw.precio_web|floatformat:0 }}"
+                       min="0" step="1000"
+                       class="form-control form-control-sm"
+                       style="width:110px">
+                <button type="submit" class="btn btn-sm btn-outline-primary"
+                        title="Guardar precio">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+              </form>
+            </td>
+
+            {# Toggle Visible #}
+            <td class="text-center">
+              <form method="post" action="{% url 'ecommerce:toggle_campo' pw.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="campo" value="visible">
+                <button type="submit"
+                        class="btn btn-sm {% if pw.visible %}btn-success{% else %}btn-outline-secondary{% endif %}"
+                        title="{% if pw.visible %}Visible — clic para ocultar{% else %}Oculto — clic para mostrar{% endif %}">
+                  <i class="bi {% if pw.visible %}bi-eye-fill{% else %}bi-eye-slash{% endif %}"></i>
+                </button>
+              </form>
+            </td>
+
+            {# Toggle Destacado #}
+            <td class="text-center">
+              <form method="post" action="{% url 'ecommerce:toggle_campo' pw.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="campo" value="destacado">
+                <button type="submit"
+                        class="btn btn-sm {% if pw.destacado %}btn-warning{% else %}btn-outline-secondary{% endif %}"
+                        title="{% if pw.destacado %}Destacado — clic para quitar{% else %}No destacado — clic para destacar{% endif %}">
+                  <i class="bi {% if pw.destacado %}bi-star-fill{% else %}bi-star{% endif %}"></i>
+                </button>
+              </form>
+            </td>
+
+            {% endwith %}
+            {% else %}
+
+            {# Producto aún no publicado #}
+            <td colspan="3" class="text-center">
+              <form method="post"
+                    action="{% url 'ecommerce:publicar_producto' producto.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-plus-circle"></i> Publicar en tienda
+                </button>
+              </form>
+            </td>
+
+            {% endif %}
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">
+              No hay productos activos en el inventario.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {# ── Tab: Promos ────────────────────────────────────────────────────── #}
+    {% if tab == 'promos' %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width:120px">ID Promo</th>
+            <th>Nombre</th>
+            <th class="text-end" style="width:140px">Precio</th>
+            <th class="text-center" style="width:90px">Visible</th>
+            <th class="text-center" style="width:100px">Destacada</th>
+            <th>Productos incluidos</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for promo in promos %}
+          <tr>
+            <td class="font-monospace small">{{ promo.id_promo }}</td>
+            <td class="fw-semibold">{{ promo.nombre }}</td>
+            <td class="text-end">{{ promo.precio|gs }}</td>
+            <td class="text-center">
+              {% if promo.visible %}
+                <span class="badge bg-success"><i class="bi bi-eye-fill"></i> Sí</span>
+              {% else %}
+                <span class="badge bg-secondary"><i class="bi bi-eye-slash"></i> No</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if promo.destacada %}
+                <span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> Sí</span>
+              {% else %}
+                <span class="text-muted small">—</span>
+              {% endif %}
+            </td>
+            <td class="small text-muted">
+              {% for item in promo.items.all %}
+                {{ item.producto.nombre }} x{{ item.cantidad }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">
+              No hay promos creadas todavía.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {# ── Tab: Pedidos ───────────────────────────────────────────────────── #}
+    {% if tab == 'pedidos' %}
+
+    {# Barra de filtro cancelados #}
+    <div class="px-3 pt-3 pb-2 border-bottom d-flex align-items-center gap-2">
+      {% if ver_cancelados %}
+        <span class="badge bg-secondary">
+          <i class="bi bi-x-circle"></i> Mostrando cancelados ({{ pedidos_cancelados|length }})
+        </span>
+        <a href="?tab=pedidos" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i> Volver a activos
+        </a>
+      {% else %}
+        <span class="text-muted small">Pedidos activos: <strong>{{ pedidos|length }}</strong></span>
+        {% if pedidos_cancelados %}
+        <a href="?tab=pedidos&ver_cancelados=1" class="btn btn-sm btn-outline-danger ms-auto">
+          <i class="bi bi-archive"></i> Ver cancelados ({{ pedidos_cancelados|length }})
+        </a>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    {# Macro inline: tabla de pedidos #}
+    {% if ver_cancelados %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width:160px">ID Pedido</th><th>Cliente</th>
+            <th style="width:130px">Teléfono</th><th style="width:160px">Fecha</th>
+            <th>Producto</th><th class="text-center" style="width:60px">Cant.</th>
+            <th class="text-end" style="width:140px">Total</th>
+            <th class="text-center" style="width:140px">Estado</th>
+            <th class="text-center" style="width:120px">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in pedidos_cancelados %}
+          <tr>
+            <td class="font-monospace small">{{ pedido.id_pedido }}</td>
+            <td class="fw-semibold">{{ pedido.cliente_nombre }}</td>
+            <td class="small">
+              <a href="https://wa.me/{{ pedido.cliente_telefono }}" target="_blank" class="text-decoration-none">
+                <i class="bi bi-whatsapp text-success"></i> {{ pedido.cliente_telefono }}
+              </a>
+            </td>
+            <td class="small text-muted">{{ pedido.fecha|date:"d/m/Y H:i" }}</td>
+            <td class="small">
+              {% if pedido.tipo_pedido == 'producto' and pedido.producto %}{{ pedido.producto.nombre }}
+              {% elif pedido.promo %}<i class="bi bi-tags"></i> {{ pedido.promo.nombre }}
+              {% else %}—{% endif %}
+            </td>
+            <td class="text-center">{{ pedido.cantidad }}</td>
+            <td class="text-end fw-semibold">{{ pedido.total|gs }}</td>
+            <td class="text-center">
+              <span class="badge" style="background:#f8d7da;color:#842029">
+                <i class="bi bi-x-circle"></i> Cancelado
+              </span>
+            </td>
+            <td class="text-center">
+              {% if pedido.whatsapp_url %}
+                <a href="{{ pedido.whatsapp_url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                  <i class="bi bi-whatsapp"></i> WA
+                </a>
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9" class="text-center text-muted py-4">No hay pedidos cancelados.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width:160px">ID Pedido</th><th>Cliente</th>
+            <th style="width:130px">Teléfono</th><th style="width:160px">Fecha</th>
+            <th>Producto</th><th class="text-center" style="width:60px">Cant.</th>
+            <th class="text-end" style="width:140px">Total</th>
+            <th class="text-center" style="width:140px">Estado</th>
+            <th class="text-center" style="width:120px">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in pedidos %}
+          <tr {% if pedido.esta_vencido %}class="table-warning"{% endif %}>
+            <td class="font-monospace small">{{ pedido.id_pedido }}</td>
+            <td class="fw-semibold">{{ pedido.cliente_nombre }}</td>
+            <td class="small">
+              <a href="https://wa.me/{{ pedido.cliente_telefono }}" target="_blank" class="text-decoration-none">
+                <i class="bi bi-whatsapp text-success"></i> {{ pedido.cliente_telefono }}
+              </a>
+            </td>
+            <td class="small text-muted">{{ pedido.fecha|date:"d/m/Y H:i" }}</td>
+            <td class="small">
+              {% if pedido.tipo_pedido == 'producto' and pedido.producto %}{{ pedido.producto.nombre }}
+              {% elif pedido.promo %}<i class="bi bi-tags"></i> {{ pedido.promo.nombre }}
+              {% else %}—{% endif %}
+            </td>
+            <td class="text-center">{{ pedido.cantidad }}</td>
+            <td class="text-end fw-semibold">{{ pedido.total|gs }}</td>
+            <td class="text-center">
+              {% if pedido.estado == 'pendiente_contacto' %}
+                <span class="badge" style="background:#fff3cd;color:#856404">
+                  <i class="bi bi-clock"></i> Pendiente
+                </span>
+              {% elif pedido.estado == 'pendiente_pago' %}
+                <span class="badge bg-warning text-dark">
+                  <i class="bi bi-credit-card"></i> Pago pend.
+                </span>
+              {% elif pedido.estado == 'confirmado' %}
+                <span class="badge" style="background:#d1e7dd;color:#0a3622">
+                  <i class="bi bi-check2-circle"></i> Confirmado
+                </span>
+              {% else %}
+                <span class="badge bg-secondary">{{ pedido.get_estado_display }}</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if pedido.estado == 'pendiente_contacto' or pedido.estado == 'pendiente_pago' %}
+              <div class="d-flex gap-1 justify-content-center">
+                <form method="post"
+                      action="{% url 'ecommerce:confirmar_pedido' pedido.pk %}"
+                      onsubmit="return confirm('¿Confirmar pedido {{ pedido.id_pedido }}? Se creará una Venta y se descontará el stock.');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="bi bi-check2-all"></i> Confirmar
+                  </button>
+                </form>
+                <form method="post"
+                      action="{% url 'ecommerce:cancelar_pedido' pedido.pk %}"
+                      onsubmit="return confirm('¿Cancelar el pedido {{ pedido.id_pedido }}?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                  </button>
+                </form>
+              </div>
+              {% elif pedido.whatsapp_url %}
+                <a href="{{ pedido.whatsapp_url }}" target="_blank"
+                   class="btn btn-sm btn-outline-success">
+                  <i class="bi bi-whatsapp"></i> WA
+                </a>
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9" class="text-center text-muted py-4">
+              Aún no se han recibido pedidos desde la tienda.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    {% endif %}
+
+  </div>{# /card-body #}
+</div>{# /card #}
+{% endblock %}

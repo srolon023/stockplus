@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Editar{% else %}Nuevo{% endif %} producto{% endblock %}
+{% block nav_inventario %}active{% endblock %}
+{% block page_title %}{% if object %}Editar producto — {{ object.codigo }}{% else %}Nuevo producto{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Datos del producto</span>
+        <a href="{% url 'inventario:index' %}" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i> Volver
+        </a>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row g-3">
+
+            <!-- Código: solo lectura, generado automáticamente -->
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Código</label>
+              <input type="text" class="form-control bg-light"
+                value="{% if object %}{{ object.codigo }}{% else %}{{ proximo_codigo }}{% endif %}"
+                readonly>
+              <div class="form-text">Generado automáticamente</div>
+            </div>
+
+            <div class="col-md-8">
+              <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+              <input type="text" name="nombre" class="form-control" required
+                value="{{ object.nombre|default:'' }}" placeholder="Ej: Funda Silicona">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Modelo de celular</label>
+              <input type="text" name="modelo_celular" class="form-control"
+                value="{{ object.modelo_celular|default:'' }}" placeholder="Ej: iPhone 15 Pro Max">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Color</label>
+              <input type="text" name="color" class="form-control"
+                value="{{ object.color|default:'' }}" placeholder="Ej: Azul marino">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Categoría</label>
+              <select name="categoria" class="form-select">
+                <option value="">Sin categoría</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.pk }}"
+                  {% if object.categoria_id == cat.pk %}selected{% endif %}>
+                  {{ cat.nombre }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Estado</label>
+              <select name="activo" class="form-select">
+                <option value="1" {% if object.activo or not object %}selected{% endif %}>Activo</option>
+                <option value="0" {% if object and not object.activo %}selected{% endif %}>Inactivo</option>
+              </select>
+            </div>
+
+            <!-- Precios -->
+            <div class="col-12"><hr class="my-1">
+              <div class="fw-semibold text-muted small mb-2">PRECIOS</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Precio de costo (Gs.)</label>
+              <input type="number" name="precio_costo" id="precio_costo" class="form-control"
+                value="{{ object.precio_costo|default:0 }}" min="0" step="1"
+                oninput="sugerirPrecioVenta()">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Precio de venta (Gs.)
+                <span class="text-muted fw-normal small" id="margen_label"></span>
+              </label>
+              <input type="number" name="precio_venta" id="precio_venta" class="form-control"
+                value="{{ object.precio_venta|default:0 }}" min="0" step="1"
+                oninput="calcularMargen()">
+            </div>
+
+            <!-- Imagen -->
+            <div class="col-12"><hr class="my-1">
+              <div class="fw-semibold text-muted small mb-2">IMAGEN</div>
+            </div>
+            <div class="col-12">
+              <div class="row g-3 align-items-start">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Subir foto</label>
+                  <input type="file" name="imagen_archivo" id="imagen_archivo"
+                    class="form-control" accept="image/*"
+                    onchange="previsualizarImagen(this)">
+                  <div class="form-text">Se sube automáticamente a ImgBB</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">O pegar URL</label>
+                  <input type="url" name="imagen_url" id="imagen_url" class="form-control"
+                    value="{{ object.imagen_url|default:'' }}"
+                    placeholder="https://i.ibb.co/..."
+                    oninput="previsualizarUrl(this.value)">
+                </div>
+                <!-- Preview -->
+                <div class="col-12" id="preview_wrap"
+                  style="{% if not object.imagen_src %}display:none{% endif %}">
+                  <label class="form-label fw-semibold">Preview</label><br>
+                  <img id="preview_img"
+                    src="{{ object.imagen_src|default:'' }}"
+                    style="height:120px;border-radius:8px;border:1px solid #dee2e6;object-fit:cover">
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Descripción</label>
+              <textarea name="descripcion" class="form-control" rows="2"
+                placeholder="Descripción opcional">{{ object.descripcion|default:'' }}</textarea>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 justify-content-end mt-4">
+            <a href="{% url 'inventario:index' %}" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg"></i>
+              {% if object %}Guardar cambios{% else %}Crear producto{% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function sugerirPrecioVenta() {
+  const costo = parseFloat(document.getElementById('precio_costo').value) || 0;
+  const venta = parseFloat(document.getElementById('precio_venta').value) || 0;
+  // Si el precio de venta es 0 o menor al costo, sugerir con 150% de margen
+  if (venta === 0 || venta < costo) {
+    document.getElementById('precio_venta').value = Math.round(costo * 2.5);
+  }
+  calcularMargen();
+}
+
+function calcularMargen() {
+  const costo = parseFloat(document.getElementById('precio_costo').value) || 0;
+  const venta = parseFloat(document.getElementById('precio_venta').value) || 0;
+  const label = document.getElementById('margen_label');
+  if (costo > 0 && venta > 0) {
+    const margen = ((venta - costo) / costo * 100).toFixed(0);
+    label.textContent = `— Margen: ${margen}%`;
+    label.style.color = margen < 30 ? '#dc3545' : '#198754';
+  } else {
+    label.textContent = '';
+  }
+}
+
+function previsualizarImagen(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('preview_img').src = e.target.result;
+      document.getElementById('preview_wrap').style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function previsualizarUrl(url) {
+  if (url) {
+    document.getElementById('preview_img').src = url;
+    document.getElementById('preview_wrap').style.display = 'block';
+  }
+}
+
+// Calcular margen al cargar si ya hay precios
+calcularMargen();
+</script>
+{% endblock %}

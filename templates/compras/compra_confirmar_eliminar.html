@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load formato_guaranies %}
+{% block title %}Eliminar compra{% endblock %}
+{% block nav_compras %}active{% endblock %}
+{% block page_title %}Eliminar compra{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white fw-semibold">
+        <i class="bi bi-exclamation-triangle"></i> Confirmar eliminación
+      </div>
+      <div class="card-body">
+        <p>¿Estás seguro que querés eliminar esta compra?</p>
+        <div class="alert alert-light border">
+          <div><strong>Número:</strong> {{ object.numero }}</div>
+          <div><strong>Fecha:</strong> {{ object.fecha }}</div>
+          <div><strong>Productos:</strong> {{ object.items.count }}</div>
+          <div><strong>Total:</strong> {{ object.total|gs }}</div>
+        </div>
+        {% if tiene_stock %}
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <strong>Advertencia:</strong> Esta compra ya fue confirmada y afectó el stock.
+          Eliminarla <strong>no revertirá</strong> los movimientos de inventario registrados.
+        </div>
+        {% endif %}
+        <form method="post" class="d-flex gap-2 justify-content-end mt-3">
+          {% csrf_token %}
+          <a href="{% url 'compras:index' %}" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Sí, eliminar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

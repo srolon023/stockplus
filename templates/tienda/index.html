@@ -1,0 +1,1310 @@
+{% load formato_guaranies %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case y Más — Fundas y accesorios para celular</title>
+  <meta name="description" content="Fundas y accesorios para celular en Paraguay. +600 modelos disponibles. Pedí por WhatsApp.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink:      #d45ec0;
+      --pink-dark: #a83d96;
+      --pink-soft: #fdf4ff;
+      --violet:    #7c3aed;
+      --dark:      #1a1124;
+      --dark2:     #261738;
+      --grad:      linear-gradient(135deg, #d45ec0, #7c3aed);
+      --border:    rgba(212, 94, 192, .18);
+      --white:     #ffffff;
+      --light:     #f7f3fb;
+      --text:      #1a1124;
+      --muted:     #6b5f7a;
+      /* Legacy aliases kept for JS/modal refs */
+      --navy:      #1a1124;
+      --navy-mid:  #261738;
+      --navy-deep: #3d1f5a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f4f5fb;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .syne { font-family: 'Syne', sans-serif; }
+
+    /* ── Announce Bar ─────────────────────────────── */
+    .announce-bar {
+      position: sticky;
+      top: 0;
+      z-index: 1050;
+      background: var(--grad);
+      color: #fff;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .announce-track {
+      display: inline-flex;
+      gap: 2.5rem;
+      white-space: nowrap;
+      animation: marquee 28s linear infinite;
+      will-change: transform;
+    }
+
+    .announce-track .sep { opacity: 0.5; }
+
+    @keyframes marquee {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    @media (min-width: 768px) {
+      .announce-track {
+        animation: none;
+        justify-content: center;
+        width: 100%;
+      }
+    }
+
+    .announce-bar .announce-item {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.015em;
+    }
+
+    /* ── Hero ─────────────────────────────────────── */
+    .hero-section {
+      background: var(--dark);
+      position: relative;
+      padding: 4.5rem 0 3.5rem;
+      overflow: hidden;
+    }
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 65% 55% at 15% 50%, rgba(212,94,192,.28) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 65% at 85% 25%, rgba(124,58,237,.22) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 75% at 60% 95%, rgba(168,61,150,.16) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Bokeh blobs */
+    .hero-blob {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-blob-1 {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(212,94,192,.30) 0%, transparent 65%);
+      top: -160px; right: -120px;
+      animation: blob-float 9s ease-in-out infinite;
+    }
+    .hero-blob-2 {
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(124,58,237,.25) 0%, transparent 65%);
+      bottom: -100px; left: -80px;
+      animation: blob-float 11s ease-in-out infinite reverse;
+    }
+    .hero-blob-3 {
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(212,94,192,.18) 0%, transparent 65%);
+      top: 35%; left: 15%;
+      animation: blob-float 13s ease-in-out infinite 2s;
+    }
+
+    @keyframes blob-float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(20px, -20px) scale(1.04); }
+      66%  { transform: translate(-15px, 15px) scale(.97); }
+    }
+
+    .hero-content { position: relative; z-index: 2; }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      color: #e8aadd;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 7px 16px;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #e8aadd;
+      animation: eyebrow-pulse 2s infinite;
+    }
+    @keyframes eyebrow-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.65)} }
+
+    .hero-brand {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 9vw, 5rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+    }
+
+    .hero-brand .accent {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      color: rgba(255,255,255,.65);
+      font-size: clamp(1rem, 2.8vw, 1.2rem);
+      margin-top: .5rem;
+      margin-bottom: 0;
+    }
+
+    /* Trust pills */
+    .trust-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      justify-content: center;
+      margin: 1.75rem 0 2rem;
+    }
+
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(255,255,255,.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.18);
+      color: #fff;
+      font-size: .78rem;
+      font-weight: 500;
+      padding: .38rem .9rem;
+      border-radius: 50px;
+      white-space: nowrap;
+      transition: background .2s;
+    }
+
+    .trust-pill:hover {
+      background: rgba(255,255,255,.18);
+    }
+
+    /* Search */
+    .search-wrapper {
+      position: relative;
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    .search-icon-left {
+      position: absolute;
+      left: 1.2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 1.05rem;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.1rem;
+      padding: .25rem;
+      display: none;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: .9rem 3rem .9rem 3.2rem;
+      border: none;
+      border-radius: 50px;
+      font-size: .98rem;
+      font-family: 'DM Sans', sans-serif;
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(0,0,0,.18);
+      outline: none;
+      transition: box-shadow .25s;
+    }
+
+    #searchInput:focus {
+      box-shadow: 0 4px 32px rgba(233,69,96,.38);
+    }
+
+    /* ── Stats Bar ───────────────────────────────── */
+    .stats-bar {
+      background: #fff;
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      padding: 1.5rem 0;
+    }
+
+    .stat-item { text-align: center; padding: .5rem 1rem; }
+
+    .stat-icon-wrap {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(212,94,192,.12), rgba(124,58,237,.12));
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+      color: var(--pink);
+    }
+
+    .stat-number {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.4rem, 3.5vw, 2rem);
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: .7rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-top: .2rem;
+    }
+
+    .stat-divider {
+      width: 1px;
+      background: var(--border);
+      align-self: stretch;
+      margin: .25rem 0;
+    }
+
+    /* ── Catalog ─────────────────────────────────── */
+    .catalog-section { padding: 2.5rem 0 3.5rem; }
+
+    .section-eyebrow {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .catalog-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+    }
+
+    .catalog-title .accent {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* ── Product Card ────────────────────────────── */
+    .product-card {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(180,80,170,.07);
+      transition: transform .22s ease, box-shadow .22s ease;
+      animation: fadeInUp .35s ease both;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 40px rgba(180,80,170,.16);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Stagger first 8 */
+    .product-col:nth-child(1) .product-card { animation-delay: .04s; }
+    .product-col:nth-child(2) .product-card { animation-delay: .08s; }
+    .product-col:nth-child(3) .product-card { animation-delay: .12s; }
+    .product-col:nth-child(4) .product-card { animation-delay: .16s; }
+    .product-col:nth-child(5) .product-card { animation-delay: .2s; }
+    .product-col:nth-child(6) .product-card { animation-delay: .24s; }
+    .product-col:nth-child(7) .product-card { animation-delay: .06s; }
+    .product-col:nth-child(8) .product-card { animation-delay: .1s; }
+
+    .product-img-wrap {
+      position: relative;
+      height: 220px;
+      overflow: hidden;
+      background: var(--pink-soft);
+      cursor: pointer;
+    }
+
+    .product-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .3s ease;
+      display: block;
+    }
+
+    .product-img-wrap:hover img { transform: scale(1.05); }
+
+    .product-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--pink-soft) 0%, #f0f0ff 100%);
+    }
+
+    .product-img-placeholder i {
+      font-size: 2.8rem;
+      color: #ddc8d0;
+    }
+
+    .product-img-placeholder small {
+      color: #d0b8be;
+      font-size: .68rem;
+      margin-top: .4rem;
+    }
+
+    .badge-destacado {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--grad);
+      color: #fff;
+      font-size: .62rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      z-index: 1;
+      box-shadow: 0 2px 10px rgba(212,94,192,.45);
+    }
+
+    .stock-pill {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: .62rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+      z-index: 1;
+      backdrop-filter: blur(4px);
+    }
+
+    .stock-pill.en-stock  { background: rgba(25,135,84,.88); color: #fff; }
+    .stock-pill.sin-stock { background: rgba(220,53,69,.88); color: #fff; }
+
+    .product-body {
+      padding: .75rem .9rem .9rem;
+    }
+
+    .product-name {
+      margin-bottom: .5rem;
+      min-height: 3.8em;
+    }
+    .product-name-main {
+      font-size: .84rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .product-name-model {
+      font-size: .74rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+    .product-color-badge {
+      display: inline-block;
+      font-size: .68rem;
+      font-weight: 600;
+      background: var(--pink-soft);
+      color: var(--pink-dark);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1px 8px;
+      margin-top: 4px;
+    }
+
+    .product-price {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: .65rem;
+      line-height: 1.1;
+    }
+
+    .btn-pedir {
+      background: var(--grad);
+      border: none;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: .84rem;
+      border-radius: 14px;
+      padding: .6rem 0;
+      width: 100%;
+      transition: opacity .18s, transform .1s;
+    }
+
+    .btn-pedir:hover  { opacity: .88; color: #fff; transform: scale(1.01); }
+    .btn-pedir:active { transform: scale(.98); }
+
+    /* ── No Results / Empty ──────────────────────── */
+    .no-results, .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--muted);
+    }
+
+    .no-results .no-results-icon {
+      font-size: 3rem;
+      color: #ddd;
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Footer Trust ────────────────────────────── */
+    .footer-trust {
+      background: var(--dark);
+      color: rgba(255,255,255,.8);
+      padding: 3.5rem 0 0;
+    }
+
+    .footer-trust-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.4rem, 4vw, 1.9rem);
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .footer-trust-sub {
+      color: rgba(255,255,255,.45);
+      font-size: .9rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .trust-item-wrap { text-align: center; padding: 0 .75rem 1.5rem; }
+
+    .trust-emoji {
+      font-size: 2.2rem;
+      display: block;
+      margin-bottom: .6rem;
+      filter: drop-shadow(0 2px 6px rgba(233,69,96,.3));
+    }
+
+    .trust-item-title {
+      font-weight: 600;
+      font-size: .9rem;
+      color: #fff;
+      margin-bottom: .2rem;
+    }
+
+    .trust-item-desc {
+      font-size: .78rem;
+      color: rgba(255,255,255,.45);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 1.25rem 0;
+      font-size: .78rem;
+      color: rgba(255,255,255,.35);
+      text-align: center;
+    }
+
+    .footer-bottom a { color: #25D366; text-decoration: none; }
+    .footer-bottom a:hover { color: #1ebe5c; text-decoration: underline; }
+
+    /* ── WhatsApp Float ──────────────────────────── */
+    .wa-float {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      text-decoration: none;
+    }
+
+    .wa-float-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #25D366;
+      border: none;
+      color: #fff;
+      font-size: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 18px rgba(37,211,102,.45);
+      transition: transform .2s, box-shadow .2s;
+      animation: wa-pulse 3s ease-in-out infinite;
+    }
+
+    .wa-float-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 26px rgba(37,211,102,.65);
+      animation: none;
+    }
+
+    @keyframes wa-pulse {
+      0%, 100% { box-shadow: 0 4px 18px rgba(37,211,102,.45); }
+      50%       { box-shadow: 0 4px 30px rgba(37,211,102,.72); }
+    }
+
+    /* ── Bottom-sheet modal on mobile ───────────── */
+    @media (max-width: 575px) {
+      #modalOrden .modal-dialog,
+      #modalPedido .modal-dialog,
+      #modalQR .modal-dialog {
+        margin: 0;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-width: 100%;
+      }
+      #modalOrden .modal-content,
+      #modalPedido .modal-content,
+      #modalQR .modal-content {
+        border-radius: 24px 24px 0 0;
+        border: none;
+        padding-bottom: env(safe-area-inset-bottom, 16px);
+      }
+      #modalOrden.fade .modal-dialog,
+      #modalPedido.fade .modal-dialog,
+      #modalQR.fade .modal-dialog {
+        transform: translateY(100%);
+        transition: transform .28s cubic-bezier(.22,1,.36,1);
+      }
+      #modalOrden.show .modal-dialog,
+      #modalPedido.show .modal-dialog,
+      #modalQR.show .modal-dialog {
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Stats bar with icons ────────────────────── */
+    .stat-item-inner {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      justify-content: center;
+    }
+
+    /* ── Mobile tweaks ───────────────────────────── */
+    @media (max-width: 575px) {
+      .hero-section  { padding: 3rem 0 2.5rem; }
+      .trust-pills   { gap: .35rem; }
+      .trust-pill    { font-size: .72rem; padding: .33rem .75rem; }
+      .product-img-wrap { height: 175px; }
+      .product-price { font-size: 1.05rem; }
+      .stats-bar .row { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .stat-item     { min-width: 110px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     1. ANNOUNCE BAR
+════════════════════════════════════════════════════ -->
+<div class="announce-bar">
+  <div class="announce-track">
+    <span class="announce-item">🚚 Envíos a todo el país</span>
+    <span class="sep">·</span>
+    <span class="announce-item">📱 +600 modelos disponibles</span>
+    <span class="sep">·</span>
+    <span class="announce-item">⭐ Más de 1000 clientes felices</span>
+    <span class="sep">·</span>
+    <span class="announce-item">🚚 Envíos a todo el país</span>
+    <span class="sep">·</span>
+    <span class="announce-item">📱 +600 modelos disponibles</span>
+    <span class="sep">·</span>
+    <span class="announce-item">⭐ Más de 1000 clientes felices</span>
+    <span class="sep">·</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     2. HERO
+════════════════════════════════════════════════════ -->
+<section class="hero-section">
+  <div class="hero-blob hero-blob-1"></div>
+  <div class="hero-blob hero-blob-2"></div>
+  <div class="hero-blob hero-blob-3"></div>
+
+  <div class="container hero-content text-center">
+    <div class="hero-eyebrow">Tienda online oficial</div>
+    <div class="hero-brand">Case y <span class="accent">Más</span></div>
+    <p class="hero-subtitle">Fundas y accesorios para tu celular</p>
+
+    <!-- Trust pills -->
+    <div class="trust-pills">
+      <span class="trust-pill"><i class="bi bi-truck"></i> Envío rápido</span>
+      <span class="trust-pill"><i class="bi bi-whatsapp"></i> Pago seguro vía WhatsApp</span>
+      <span class="trust-pill"><i class="bi bi-shield-check"></i> Garantía de calidad</span>
+      <span class="trust-pill"><i class="bi bi-stars"></i> Atención personalizada</span>
+    </div>
+
+    <!-- Search -->
+    <div class="search-wrapper">
+      <i class="bi bi-search search-icon-left"></i>
+      <input type="text" id="searchInput"
+             placeholder="Buscar por modelo, color o tipo..."
+             autocomplete="off" spellcheck="false">
+      <button class="search-clear-btn" id="searchClear" title="Limpiar búsqueda" type="button">
+        <i class="bi bi-x-circle-fill"></i>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     3. STATS BAR
+════════════════════════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="row g-0 align-items-center justify-content-center">
+      <div class="col stat-item">
+        <div class="stat-item-inner">
+          <div class="stat-icon-wrap"><i class="bi bi-phone"></i></div>
+          <div>
+            <div class="stat-number">{{ productos_web|length }}</div>
+            <div class="stat-label">Productos</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-auto stat-divider d-none d-sm-block"></div>
+      <div class="col stat-item">
+        <div class="stat-item-inner">
+          <div class="stat-icon-wrap"><i class="bi bi-grid-3x3-gap"></i></div>
+          <div>
+            <div class="stat-number">+600</div>
+            <div class="stat-label">Modelos</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-auto stat-divider d-none d-sm-block"></div>
+      <div class="col stat-item">
+        <div class="stat-item-inner">
+          <div class="stat-icon-wrap"><i class="bi bi-people"></i></div>
+          <div>
+            <div class="stat-number">+1.000</div>
+            <div class="stat-label">Clientes</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-auto stat-divider d-none d-sm-block"></div>
+      <div class="col stat-item">
+        <div class="stat-item-inner">
+          <div class="stat-icon-wrap"><i class="bi bi-truck"></i></div>
+          <div>
+            <div class="stat-number">2+</div>
+            <div class="stat-label">Años</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     4. CATÁLOGO
+════════════════════════════════════════════════════ -->
+<section class="catalog-section">
+  <div class="container">
+
+    <div class="section-eyebrow">Catálogo completo</div>
+    <h2 class="catalog-title" id="catalogTitle">
+      Todos nuestros <span class="accent">productos</span>
+    </h2>
+
+    {% if productos_web %}
+    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3" id="productGrid">
+      {% for pw in productos_web %}
+      <div class="col product-col"
+           data-search="{{ pw.titulo_display|lower }}">
+        <div class="product-card h-100">
+
+          <!-- Imagen -->
+          <div class="product-img-wrap">
+            {% if pw.destacado %}
+            <span class="badge-destacado">
+              <i class="bi bi-star-fill"></i> Destacado
+            </span>
+            {% endif %}
+
+            {% if pw.imagen_src %}
+            <img src="{{ pw.imagen_src }}"
+                 alt="{{ pw.titulo_display }}"
+                 class="img-zoom"
+                 loading="lazy">
+            {% else %}
+            <div class="product-img-placeholder">
+              <i class="bi bi-phone"></i>
+              <small>Sin imagen</small>
+            </div>
+            {% endif %}
+
+            {% if pw.producto.stock_disponible > 0 %}
+            <span class="stock-pill en-stock">✓ En stock</span>
+            {% else %}
+            <span class="stock-pill sin-stock">Sin stock</span>
+            {% endif %}
+          </div>
+
+          <!-- Body -->
+          <div class="product-body d-flex flex-column">
+            <div class="product-name">
+              <div class="product-name-main">{{ pw.producto.nombre }}</div>
+              {% if pw.producto.modelo_celular %}
+              <div class="product-name-model">{{ pw.producto.modelo_celular }}</div>
+              {% endif %}
+              {% if pw.producto.color %}
+              <span class="product-color-badge">{{ pw.producto.color }}</span>
+              {% endif %}
+            </div>
+            <p class="product-price">
+              <span class="precio-valor"
+                    data-precio="{{ pw.precio_web|floatformat:0 }}">{{ pw.precio_web|gs }}</span>
+            </p>
+            <button class="btn btn-pedir btn-pedir-action mt-auto"
+                    type="button"
+                    data-id="{{ pw.producto_id }}"
+                    data-nombre="{{ pw.titulo_display }}"
+                    data-precio="{{ pw.precio_web|floatformat:0 }}">
+              Pedir ahora 🛒
+            </button>
+          </div>
+
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Sin resultados de búsqueda -->
+    <div id="noResults" class="no-results" style="display:none;">
+      <i class="bi bi-search no-results-icon"></i>
+      <h5 style="color:#bbb;">Sin resultados para &ldquo;<span id="noResultsQuery"></span>&rdquo;</h5>
+      <p style="color:#ccc; font-size:.9rem;">Probá con otro término o explorá todos los productos.</p>
+      <button class="btn btn-outline-danger btn-sm mt-1" onclick="clearSearch()">
+        Ver todos los productos
+      </button>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-shop" style="font-size:4rem; color:#e0c0c8; display:block; margin-bottom:1rem;"></i>
+      <h5 style="color:#bbb;">Pronto habrá productos disponibles</h5>
+      <p style="color:#ccc;">¡Volvé a visitarnos pronto!</p>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     5. FOOTER TRUST STRIP
+════════════════════════════════════════════════════ -->
+<footer class="footer-trust">
+  <div class="container text-center">
+    <h3 class="footer-trust-title">¿Por qué elegirnos?</h3>
+    <p class="footer-trust-sub">Tu satisfacción es nuestra prioridad</p>
+
+    <div class="row g-0 justify-content-center">
+      <div class="col-6 col-md-3">
+        <div class="trust-item-wrap">
+          <span class="trust-emoji">🚚</span>
+          <div class="trust-item-title">Envíos rápidos</div>
+          <div class="trust-item-desc">A todo el país</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="trust-item-wrap">
+          <span class="trust-emoji">💳</span>
+          <div class="trust-item-title">Pago fácil</div>
+          <div class="trust-item-desc">100% por WhatsApp</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="trust-item-wrap">
+          <span class="trust-emoji">✅</span>
+          <div class="trust-item-title">Productos originales</div>
+          <div class="trust-item-desc">Calidad garantizada</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="trust-item-wrap">
+          <span class="trust-emoji">🌟</span>
+          <div class="trust-item-title">Atención personalizada</div>
+          <div class="trust-item-desc">Te asesoramos siempre</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="mb-1">© Case y Más &mdash; Paraguay</p>
+      <p class="mb-0">
+        Contacto:&nbsp;
+        <a href="https://wa.me/595984841242" target="_blank" rel="noopener">
+          <i class="bi bi-whatsapp"></i> WhatsApp 0984 841 242
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════════════
+     6. BOTÓN FLOTANTE WHATSAPP
+════════════════════════════════════════════════════ -->
+<a href="https://wa.me/595984841242" target="_blank" rel="noopener"
+   class="wa-float" title="Consultanos por WhatsApp">
+  <div class="wa-float-btn">
+    <i class="bi bi-whatsapp"></i>
+  </div>
+</a>
+
+<!-- ══════════════════════════════════════════════════
+     MODALES
+════════════════════════════════════════════════════ -->
+
+<!-- Modal: Lightbox imagen -->
+<div class="modal fade" id="modalImagen" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="background:#111;">
+      <div class="modal-header border-0 pb-0">
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center p-3 pt-1">
+        <img id="imagenAmpliada" src="" alt=""
+             class="img-fluid rounded"
+             style="max-height:80vh; object-fit:contain;">
+        <p class="text-white-50 small mt-2 mb-0" id="imagenAmpliadaTitulo"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Orden WhatsApp -->
+<div class="modal fade" id="modalOrden" tabindex="-1"
+     aria-labelledby="modalOrdenLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--navy);">
+        <h5 class="modal-title text-white" id="modalOrdenLabel">
+          <i class="bi bi-bag-plus"></i> Hacer pedido
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded" style="background:#f5f6fa;">
+          <i class="bi bi-phone fs-4 text-muted"></i>
+          <div>
+            <div class="fw-semibold small" id="ordenNombreProducto">—</div>
+            <div class="fw-bold" style="color:var(--pink);" id="ordenPrecioProducto">—</div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Cantidad</label>
+          <div class="input-group" style="max-width:160px;">
+            <button type="button" class="btn btn-outline-secondary" id="ordenBtnMenos">
+              <i class="bi bi-dash"></i>
+            </button>
+            <input type="number" id="ordenCantidad" value="1" min="1" max="99"
+                   class="form-control text-center fw-bold">
+            <button type="button" class="btn btn-outline-secondary" id="ordenBtnMas">
+              <i class="bi bi-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="mb-3 p-2 rounded text-center" style="background:#fff3cd;">
+          <span class="text-muted small">Total estimado: </span>
+          <span class="fw-bold" style="color:var(--pink);" id="ordenTotal">—</span>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">
+            Tu nombre <span class="text-danger">*</span>
+          </label>
+          <input type="text" id="ordenNombreCliente" class="form-control"
+                 placeholder="Ej: María García" maxlength="200">
+          <div class="invalid-feedback">Por favor ingresá tu nombre.</div>
+        </div>
+        <p class="text-muted small mb-0 mt-2">
+          <i class="bi bi-info-circle"></i>
+          Al confirmar serás redirigido a WhatsApp para completar tu pedido.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-pedir" id="ordenBtnConfirmar">
+          <i class="bi bi-whatsapp"></i> Confirmar por WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Pedido formulario completo (disponible si se activa manualmente) -->
+<div class="modal fade" id="modalPedido" tabindex="-1"
+     aria-labelledby="modalPedidoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--navy);">
+        <h5 class="modal-title text-white" id="modalPedidoLabel">
+          <i class="bi bi-bag-plus"></i> Hacer pedido
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'tienda:pedido' %}">
+        {% csrf_token %}
+        <input type="hidden" name="producto_web_id" id="inputProductoId">
+        <div class="modal-body">
+          <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded" style="background:#f5f6fa;">
+            <i class="bi bi-phone fs-4 text-muted"></i>
+            <div>
+              <div class="fw-semibold small" id="modalProductoNombre">—</div>
+              <div class="fw-bold" style="color:var(--pink);" id="modalProductoPrecio">—</div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Cantidad</label>
+            <div class="input-group" style="max-width:160px;">
+              <button type="button" class="btn btn-outline-secondary" id="btnMenos">
+                <i class="bi bi-dash"></i>
+              </button>
+              <input type="number" name="cantidad" id="inputCantidad"
+                     value="1" min="1" max="99"
+                     class="form-control text-center fw-bold">
+              <button type="button" class="btn btn-outline-secondary" id="btnMas">
+                <i class="bi bi-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="mb-3 p-2 rounded text-center" style="background:#fff3cd;">
+            <span class="text-muted small">Total estimado: </span>
+            <span class="fw-bold" style="color:var(--pink);" id="modalTotal">—</span>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              Tu nombre <span class="text-danger">*</span>
+            </label>
+            <input type="text" name="nombre" class="form-control"
+                   placeholder="Ej: María García" required maxlength="200">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              Tu teléfono <span class="text-danger">*</span>
+            </label>
+            <input type="tel" name="telefono" class="form-control"
+                   placeholder="Ej: 0981 123456" required maxlength="30">
+          </div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold">
+              Observaciones
+              <span class="text-muted small fw-normal">(opcional)</span>
+            </label>
+            <textarea name="observaciones" class="form-control" rows="2"
+                      placeholder="Color, modelo de celular, dirección de entrega..."></textarea>
+          </div>
+          <p class="text-muted small mb-0 mt-2">
+            <i class="bi bi-info-circle"></i>
+            Al confirmar serás redirigido a WhatsApp para completar tu pedido.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-pedir">
+            <i class="bi bi-whatsapp"></i> Confirmar por WhatsApp
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: QR Desktop -->
+<div class="modal fade" id="modalQR" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--navy);">
+        <h5 class="modal-title text-white">
+          <i class="bi bi-qr-code"></i> Escanear para pedir por WhatsApp
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center py-4">
+        <p class="fw-semibold mb-1" id="qrNombreProducto">—</p>
+        <p class="fw-bold mb-3" style="color:var(--pink);" id="qrPrecioProducto">—</p>
+        <div id="qrContainer" class="d-inline-block mb-3" style="line-height:0;"></div>
+        <p class="text-muted small mb-2">
+          <i class="bi bi-phone"></i> Escaneá con tu celular para abrir WhatsApp
+        </p>
+        <a id="qrWaLink" href="#" target="_blank" rel="noopener" class="btn btn-success btn-sm">
+          <i class="bi bi-whatsapp"></i> Abrir WhatsApp directamente
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  // ── Formateo PY ───────────────────────────────────────────
+  function fmtGs(n) {
+    return 'Gs. ' + Math.round(n).toLocaleString('es-PY');
+  }
+
+  document.querySelectorAll('.precio-valor').forEach(function(el) {
+    var n = parseInt(el.dataset.precio, 10);
+    if (!isNaN(n)) el.textContent = n.toLocaleString('es-PY');
+  });
+
+  // ── Mobile detection ──────────────────────────────────────
+  function esMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
+  // ── Búsqueda en tiempo real ───────────────────────────────
+  var searchInput   = document.getElementById('searchInput');
+  var searchClearBtn = document.getElementById('searchClear');
+  var catalogTitle  = document.getElementById('catalogTitle');
+  var noResults     = document.getElementById('noResults');
+  var noResultsQuery = document.getElementById('noResultsQuery');
+  var productCols   = document.querySelectorAll('.product-col');
+
+  function clearSearch() {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    filterProducts('');
+    searchInput.focus();
+  }
+
+  if (searchClearBtn) searchClearBtn.addEventListener('click', clearSearch);
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      var q = this.value.trim();
+      searchClearBtn.style.display = q ? 'block' : 'none';
+      filterProducts(q);
+    });
+  }
+
+  function filterProducts(q) {
+    var term = q.toLowerCase();
+    var visible = 0;
+
+    productCols.forEach(function(col) {
+      var text = (col.dataset.search || '');
+      if (!term || text.includes(term)) {
+        col.style.display = '';
+        visible++;
+      } else {
+        col.style.display = 'none';
+      }
+    });
+
+    if (catalogTitle) {
+      if (term) {
+        catalogTitle.innerHTML =
+          visible + ' resultado' + (visible !== 1 ? 's' : '') +
+          ' para &ldquo;<span class="accent">' + q.replace(/</g,'&lt;') + '</span>&rdquo;';
+      } else {
+        catalogTitle.innerHTML = 'Todos nuestros <span class="accent">productos</span>';
+      }
+    }
+
+    if (noResults) {
+      noResults.style.display = (visible === 0 && productCols.length > 0) ? 'block' : 'none';
+      if (noResultsQuery) noResultsQuery.textContent = q;
+    }
+  }
+
+  // ── Lightbox ──────────────────────────────────────────────
+  var modalImagen = new bootstrap.Modal(document.getElementById('modalImagen'));
+
+  document.addEventListener('click', function(e) {
+    var img = e.target.closest('.img-zoom');
+    if (!img) return;
+    document.getElementById('imagenAmpliada').src = img.src;
+    document.getElementById('imagenAmpliadaTitulo').textContent = img.alt;
+    modalImagen.show();
+  });
+
+  // ── Botones "Pedir ahora" ─────────────────────────────────
+  var productoActual = { nombre: '', precio: 0 };
+  var modalOrden = new bootstrap.Modal(document.getElementById('modalOrden'));
+
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.btn-pedir-action');
+    if (!btn) return;
+    productoActual = {
+      nombre: btn.dataset.nombre,
+      precio: parseInt(btn.dataset.precio, 10) || 0,
+    };
+    document.getElementById('ordenNombreProducto').textContent = productoActual.nombre;
+    document.getElementById('ordenPrecioProducto').textContent = fmtGs(productoActual.precio);
+    document.getElementById('ordenCantidad').value = 1;
+    document.getElementById('ordenNombreCliente').value = '';
+    document.getElementById('ordenNombreCliente').classList.remove('is-invalid');
+    actualizarTotalOrden();
+    modalOrden.show();
+  });
+
+  function actualizarTotalOrden() {
+    var cant = parseInt(document.getElementById('ordenCantidad').value, 10) || 1;
+    document.getElementById('ordenTotal').textContent = fmtGs(productoActual.precio * cant);
+  }
+
+  document.getElementById('ordenCantidad').addEventListener('input', actualizarTotalOrden);
+
+  document.getElementById('ordenBtnMenos').addEventListener('click', function() {
+    var inp = document.getElementById('ordenCantidad');
+    if (parseInt(inp.value) > 1) { inp.value = parseInt(inp.value) - 1; actualizarTotalOrden(); }
+  });
+
+  document.getElementById('ordenBtnMas').addEventListener('click', function() {
+    var inp = document.getElementById('ordenCantidad');
+    inp.value = parseInt(inp.value) + 1;
+    actualizarTotalOrden();
+  });
+
+  document.getElementById('ordenBtnConfirmar').addEventListener('click', function() {
+    var nombreCliente = document.getElementById('ordenNombreCliente').value.trim();
+    if (!nombreCliente) {
+      document.getElementById('ordenNombreCliente').classList.add('is-invalid');
+      document.getElementById('ordenNombreCliente').focus();
+      return;
+    }
+    document.getElementById('ordenNombreCliente').classList.remove('is-invalid');
+
+    var cantidad  = parseInt(document.getElementById('ordenCantidad').value, 10) || 1;
+    var precioFmt = productoActual.precio.toLocaleString('es-PY');
+
+    var msg =
+      'Hola! Vi su tienda online y me interesa:\n' +
+      '\uD83D\uDCE6 Producto: ' + productoActual.nombre + '\n' +
+      '\uD83D\uDCB0 Precio: Gs. ' + precioFmt + '\n' +
+      '\uD83D\uDD22 Cantidad: ' + cantidad + '\n' +
+      '\uD83D\uDCCD Mi nombre es: ' + nombreCliente + '\n\n' +
+      '\u00BFEst\u00E1 disponible?';
+
+    var waUrl = 'https://wa.me/595984841242?text=' + encodeURIComponent(msg);
+    modalOrden.hide();
+
+    if (esMobile()) {
+      window.location.href = waUrl;
+    } else {
+      document.getElementById('qrNombreProducto').textContent = productoActual.nombre;
+      document.getElementById('qrPrecioProducto').textContent = fmtGs(productoActual.precio);
+      document.getElementById('qrWaLink').href = waUrl;
+      var qrContainer = document.getElementById('qrContainer');
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, {
+        text: waUrl,
+        width: 220,
+        height: 220,
+        colorDark: '#1a1a2e',
+        colorLight: '#ffffff',
+      });
+      new bootstrap.Modal(document.getElementById('modalQR')).show();
+    }
+  });
+
+  // ── Modal pedido (formulario completo) ────────────────────
+  var precioUnitario = 0;
+
+  document.getElementById('modalPedido').addEventListener('show.bs.modal', function(e) {
+    var btn = e.relatedTarget;
+    if (!btn) return;
+    document.getElementById('inputProductoId').value = btn.dataset.id;
+    document.getElementById('modalProductoNombre').textContent = btn.dataset.nombre;
+    precioUnitario = parseInt(btn.dataset.precio, 10) || 0;
+    document.getElementById('modalProductoPrecio').textContent = fmtGs(precioUnitario);
+    document.getElementById('inputCantidad').value = 1;
+    actualizarTotal();
+  });
+
+  function actualizarTotal() {
+    var cant = parseInt(document.getElementById('inputCantidad').value, 10) || 1;
+    document.getElementById('modalTotal').textContent = fmtGs(precioUnitario * cant);
+  }
+
+  document.getElementById('inputCantidad').addEventListener('input', actualizarTotal);
+
+  document.getElementById('btnMenos').addEventListener('click', function() {
+    var inp = document.getElementById('inputCantidad');
+    if (parseInt(inp.value) > 1) { inp.value = parseInt(inp.value) - 1; actualizarTotal(); }
+  });
+
+  document.getElementById('btnMas').addEventListener('click', function() {
+    var inp = document.getElementById('inputCantidad');
+    inp.value = parseInt(inp.value) + 1;
+    actualizarTotal();
+  });
+</script>
+</body>
+</html>

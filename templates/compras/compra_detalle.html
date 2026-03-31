@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load formato_guaranies %}
+{% block title %}{{ compra.numero }}{% endblock %}
+{% block nav_compras %}active{% endblock %}
+{% block page_title %}Compra {{ compra.numero }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">Datos generales</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-5">Número</dt>
+          <dd class="col-7">{{ compra.numero }}</dd>
+          <dt class="col-5">Fecha</dt>
+          <dd class="col-7">{{ compra.fecha }}</dd>
+          <dt class="col-5">Proveedor</dt>
+          <dd class="col-7">{{ compra.proveedor|default:"—" }}</dd>
+          <dt class="col-5">Factura</dt>
+          <dd class="col-7">{{ compra.nro_factura|default:"—" }}</dd>
+          <dt class="col-5">Estado</dt>
+          <dd class="col-7">
+            {% if compra.estado == 'recibida' %}
+              <span class="badge bg-success">Confirmada</span>
+            {% elif compra.estado == 'borrador' %}
+              <span class="badge bg-warning text-dark">Borrador</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ compra.estado }}</span>
+            {% endif %}
+          </dd>
+          <dt class="col-5">Observaciones</dt>
+          <dd class="col-7">{{ compra.observaciones|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header">Resumen</div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Subtotal productos</span>
+          <span>{{ compra.subtotal_productos|gs }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Costos adicionales</span>
+          <span>{{ compra.total_adicionales|gs }}</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between fw-bold fs-5">
+          <span>Total</span>
+          <span>{{ compra.total|gs }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-grid gap-2 mt-3">
+      {% if compra.estado == 'borrador' %}
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-check-circle"></i> Confirmar y actualizar stock
+        </button>
+      </form>
+      <a href="{% url 'compras:editar' compra.pk %}" class="btn btn-outline-primary">
+        <i class="bi bi-pencil"></i> Editar compra
+      </a>
+      {% endif %}
+      <a href="{% url 'compras:eliminar' compra.pk %}" class="btn btn-outline-danger">
+        <i class="bi bi-trash"></i> Eliminar compra
+      </a>
+      <a href="{% url 'compras:index' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a compras
+      </a>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header"><i class="bi bi-box-seam"></i> Productos</div>
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Código</th>
+              <th>Producto</th>
+              <th class="text-center">Cantidad</th>
+              <th class="text-end">Precio unit.</th>
+              <th class="text-end">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in compra.items.all %}
+            <tr>
+              <td><span class="badge bg-light text-dark">{{ item.producto.codigo }}</span></td>
+              <td>{{ item.producto }}</td>
+              <td class="text-center">{{ item.cantidad }}</td>
+              <td class="text-end">{{ item.precio_unitario|gs }}</td>
+              <td class="text-end fw-semibold">{{ item.subtotal|gs }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% if compra.adicionales.all %}
+    <div class="card">
+      <div class="card-header"><i class="bi bi-receipt"></i> Costos adicionales</div>
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Concepto</th>
+              <th>Descripción</th>
+              <th class="text-end">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in compra.adicionales.all %}
+            <tr>
+              <td>{{ a.concepto.nombre }}</td>
+              <td>{{ a.descripcion|default:"—" }}</td>
+              <td class="text-end fw-semibold">{{ a.monto|gs }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

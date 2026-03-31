@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}{% if gasto %}Editar gasto{% else %}Nuevo gasto{% endif %}{% endblock %}
+{% block nav_gastos %}active{% endblock %}
+{% block page_title %}{% if gasto %}Editar gasto{% else %}Registrar gasto{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header">
+        <i class="bi bi-receipt"></i>
+        {% if gasto %}Editar gasto{% else %}Nuevo gasto general{% endif %}
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Concepto <span class="text-danger">*</span></label>
+            <select name="concepto" class="form-select" required>
+              <option value="">— Seleccioná un concepto —</option>
+              {% for c in conceptos %}
+              <option value="{{ c.id }}"
+                {% if gasto and gasto.concepto_id == c.id %}selected
+                {% elif request.POST.concepto == c.id|stringformat:"s" %}selected{% endif %}>
+                {{ c.nombre }}
+              </option>
+              {% endfor %}
+            </select>
+            <div class="form-text">
+              Si no encontrás el concepto, podés agregarlo desde el
+              <a href="/admin/gastos/conceptoadicional/add/" target="_blank">panel de administración</a>.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Descripción</label>
+            <input type="text" name="descripcion" class="form-control"
+                   placeholder="Detalle específico del gasto"
+                   value="{{ gasto.descripcion|default:request.POST.descripcion }}">
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Monto (Gs.) <span class="text-danger">*</span></label>
+              <input type="number" name="monto" class="form-control" required min="0" step="1"
+                     placeholder="0"
+                     value="{{ gasto.monto|default:request.POST.monto }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Fecha <span class="text-danger">*</span></label>
+              <input type="date" name="fecha" class="form-control" required
+                     value="{{ gasto.fecha|default:hoy }}">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Comprobante</label>
+            <input type="text" name="comprobante" class="form-control"
+                   placeholder="Nro. de factura o recibo (opcional)"
+                   value="{{ gasto.comprobante|default:request.POST.comprobante }}">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Observación</label>
+            <textarea name="observacion" class="form-control" rows="3"
+                      placeholder="Notas adicionales (opcional)">{{ gasto.observacion|default:request.POST.observacion }}</textarea>
+          </div>
+
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="{% url 'gastos:index' %}" class="btn btn-outline-secondary">
+              <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg"></i>
+              {% if gasto %}Guardar cambios{% else %}Registrar gasto{% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

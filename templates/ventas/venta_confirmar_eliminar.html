@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load formato_guaranies %}
+{% block title %}Eliminar venta{% endblock %}
+{% block nav_ventas %}active{% endblock %}
+{% block page_title %}Eliminar venta{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white">
+        <i class="bi bi-exclamation-triangle"></i> Confirmar eliminación
+      </div>
+      <div class="card-body">
+        <p class="mb-3">¿Estás seguro de que querés eliminar esta venta?</p>
+        <dl class="row">
+          <dt class="col-5">Número</dt>
+          <dd class="col-7">{{ object.numero }}</dd>
+          <dt class="col-5">Fecha</dt>
+          <dd class="col-7">{{ object.fecha }}</dd>
+          <dt class="col-5">Cliente</dt>
+          <dd class="col-7">{{ object.cliente_nombre|default:"—" }}</dd>
+          <dt class="col-5">Productos</dt>
+          <dd class="col-7">{{ object.items.count }}</dd>
+          <dt class="col-5">Total</dt>
+          <dd class="col-7 fw-bold">{{ object.total|gs }}</dd>
+        </dl>
+        {% if tiene_stock %}
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <strong>Advertencia:</strong> Esta venta ya fue confirmada y descontó stock.
+          Eliminarla <strong>no revertirá</strong> los movimientos de inventario registrados.
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+          <i class="bi bi-info-circle"></i> Esta acción no se puede deshacer.
+        </div>
+        {% endif %}
+      </div>
+      <div class="card-footer d-flex gap-2 justify-content-end">
+        <a href="{% url 'ventas:detalle' object.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Sí, eliminar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

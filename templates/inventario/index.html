@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load formato_guaranies %}
+{% block title %}Inventario{% endblock %}
+{% block nav_inventario %}active{% endblock %}
+{% block page_title %}Inventario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <input type="search" id="buscador" class="form-control" placeholder="Buscar producto..." style="width:280px">
+  <a href="{% url 'inventario:producto_nuevo' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg"></i> Nuevo producto
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Productos <span class="badge bg-secondary">{{ productos.count }}</span></span>
+    <select id="filtro-stock" class="form-select form-select-sm" style="width:auto">
+      <option value="">Todo el stock</option>
+      <option value="sin">Sin stock</option>
+      <option value="bajo">Stock bajo</option>
+      <option value="ok">Stock OK</option>
+    </select>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Código</th>
+          <th>Producto</th>
+          <th>Modelo</th>
+          <th>Color</th>
+          <th class="text-end">Costo</th>
+          <th class="text-end">Precio venta</th>
+          <th class="text-center">Stock</th>
+          <th class="text-center">Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tabla-productos">
+        {% for p in productos %}
+        <tr data-stock="{{ p.stock_disponible }}">
+          <td><span class="badge bg-light text-dark">{{ p.codigo }}</span></td>
+          <td class="fw-semibold">{{ p.nombre }}</td>
+          <td>{{ p.modelo_celular }}</td>
+          <td>{{ p.color }}</td>
+          <td class="text-end">{{ p.precio_costo|gs }}</td>
+          <td class="text-end fw-semibold">{{ p.precio_venta|gs }}</td>
+          <td class="text-center">
+            {% with stock=p.stock_disponible %}
+              {% if stock == 0 %}
+                <span class="badge bg-danger">Sin stock</span>
+              {% elif stock <= 3 %}
+                <span class="badge bg-warning text-dark">{{ stock }} unid.</span>
+              {% else %}
+                <span class="badge bg-success">{{ stock }} unid.</span>
+              {% endif %}
+            {% endwith %}
+          </td>
+          <td class="text-center">
+            {% if p.activo %}
+              <span class="badge bg-success-subtle text-success">Activo</span>
+            {% else %}
+              <span class="badge bg-secondary-subtle text-secondary">Inactivo</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{% url 'inventario:producto_editar' p.pk %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'inventario:producto_eliminar' p.pk %}" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center py-5 text-muted">
+            <i class="bi bi-box-seam fs-1 d-block mb-2"></i>
+            No hay productos todavía.
+            <a href="{% url 'inventario:producto_nuevo' %}">Agregar el primero</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function aplicarFiltros() {
+  const q = document.getElementById('buscador').value.toLowerCase();
+  const stockFiltro = document.getElementById('filtro-stock').value;
+  document.querySelectorAll('#tabla-productos tr[data-stock]').forEach(tr => {
+    const stock = parseInt(tr.dataset.stock, 10);
+    const textoOk = !q || tr.textContent.toLowerCase().includes(q);
+    let stockOk = true;
+    if (stockFiltro === 'sin')  stockOk = stock === 0;
+    else if (stockFiltro === 'bajo') stockOk = stock >= 1 && stock <= 3;
+    else if (stockFiltro === 'ok')   stockOk = stock > 3;
+    tr.style.display = (textoOk && stockOk) ? '' : 'none';
+  });
+}
+document.getElementById('buscador').addEventListener('input', aplicarFiltros);
+document.getElementById('filtro-stock').addEventListener('change', aplicarFiltros);
+</script>
+{% endblock %}

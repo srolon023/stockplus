@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load formato_guaranies %}
+{% block title %}Mi Dashboard{% endblock %}
+{% block nav_ventas %}active{% endblock %}
+{% block page_title %}Mi Dashboard de Ventas{% endblock %}
+
+{% block content %}
+<style>
+  .kpi-card {
+    border: none;
+    border-radius: 14px;
+    padding: 1.4rem 1.5rem;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card .kpi-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 3rem;
+    opacity: .18;
+  }
+  .kpi-card .kpi-label {
+    font-size: .78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    opacity: .85;
+    margin-bottom: .3rem;
+  }
+  .kpi-card .kpi-count {
+    font-size: 1rem;
+    font-weight: 600;
+    opacity: .8;
+    margin-bottom: .1rem;
+  }
+  .kpi-card .kpi-amount {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .kpi-hoy    { background: linear-gradient(135deg, #e94560, #c73652); }
+  .kpi-semana { background: linear-gradient(135deg, #0d6efd, #0a58ca); }
+  .kpi-mes    { background: linear-gradient(135deg, #198754, #146c43); }
+</style>
+
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-lg-4">
+    <div class="kpi-card kpi-hoy">
+      <i class="bi bi-sun kpi-icon"></i>
+      <div class="kpi-label">Hoy — {{ hoy|date:"d/m/Y" }}</div>
+      <div class="kpi-count">{{ ventas_hoy|length }} venta{{ ventas_hoy|length|pluralize }}</div>
+      <div class="kpi-amount">{{ total_hoy|gs }}</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-4">
+    <div class="kpi-card kpi-semana">
+      <i class="bi bi-calendar-week kpi-icon"></i>
+      <div class="kpi-label">Esta semana</div>
+      <div class="kpi-count">{{ ventas_semana|length }} venta{{ ventas_semana|length|pluralize }}</div>
+      <div class="kpi-amount">{{ total_semana|gs }}</div>
+    </div>
+  </div>
+  <div class="col-sm-12 col-lg-4">
+    <div class="kpi-card kpi-mes">
+      <i class="bi bi-calendar-month kpi-icon"></i>
+      <div class="kpi-label">Este mes</div>
+      <div class="kpi-count">{{ ventas_mes|length }} venta{{ ventas_mes|length|pluralize }}</div>
+      <div class="kpi-amount">{{ total_mes|gs }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <!-- Ranking de días -->
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="bi bi-trophy text-warning"></i>
+        Mejores días (últimos 30 días)
+      </div>
+      <div class="card-body p-0">
+        {% if ranking_dias %}
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Fecha</th>
+              <th class="text-center" style="width:70px">Ventas</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for dia in ranking_dias %}
+            <tr {% if forloop.first %}class="table-warning"{% endif %}>
+              <td class="text-muted small">
+                {% if forloop.first %}
+                  <i class="bi bi-trophy-fill text-warning"></i>
+                {% else %}
+                  {{ forloop.counter }}
+                {% endif %}
+              </td>
+              <td class="fw-semibold">{{ dia.fecha|date:"d/m/Y" }}</td>
+              <td class="text-center">
+                <span class="badge bg-secondary">{{ dia.count }}</span>
+              </td>
+              <td class="text-end fw-semibold">{{ dia.total|gs }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-bar-chart fs-2 d-block mb-2 opacity-50"></i>
+          Sin datos en los últimos 30 días.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimas 10 ventas -->
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="bi bi-clock-history text-primary"></i>
+        Mis últimas ventas
+      </div>
+      <div class="card-body p-0">
+        {% if ultimas %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Número</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Canal</th>
+                <th class="text-end">Total</th>
+                <th class="text-center" style="width:90px">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for v in ultimas %}
+              <tr>
+                <td>
+                  <a href="{% url 'ventas:detalle' v.pk %}" class="text-decoration-none fw-semibold small">
+                    {{ v.numero }}
+                  </a>
+                </td>
+                <td class="small text-muted">{{ v.fecha|date:"d/m/Y" }}</td>
+                <td class="small">{{ v.cliente_nombre|default:"—" }}</td>
+                <td>
+                  <span class="badge bg-light text-dark border">{{ v.get_canal_display }}</span>
+                </td>
+                <td class="text-end fw-semibold small">{{ v.total|gs }}</td>
+                <td class="text-center">
+                  {% if v.estado == 'confirmada' %}
+                    <span class="badge" style="background:#d1e7dd;color:#0a3622">Confirmada</span>
+                  {% elif v.estado == 'preparando' %}
+                    <span class="badge bg-info text-dark">Preparando</span>
+                  {% elif v.estado == 'enviada' %}
+                    <span class="badge bg-primary">Enviada</span>
+                  {% elif v.estado == 'entregada' %}
+                    <span class="badge bg-success">Entregada</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ v.get_estado_display }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-bag-x fs-2 d-block mb-2 opacity-50"></i>
+          No tenés ventas confirmadas todavía.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mt-3">
+  <a href="{% url 'ventas:nueva' %}" class="btn btn-primary">
+    <i class="bi bi-plus-circle"></i> Nueva venta
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar gasto{% endblock %}
+{% block nav_gastos %}active{% endblock %}
+{% block page_title %}Eliminar gasto{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white fw-semibold">
+        <i class="bi bi-exclamation-triangle"></i> Confirmar eliminación
+      </div>
+      <div class="card-body">
+        <p>¿Estás seguro que querés eliminar este gasto?</p>
+        <div class="alert alert-light border">
+          <div><strong>Fecha:</strong> {{ gasto.fecha }}</div>
+          <div><strong>Concepto:</strong> {{ gasto.concepto.nombre }}</div>
+          <div><strong>Descripción:</strong> {{ gasto.descripcion|default:"—" }}</div>
+          <div><strong>Monto:</strong> Gs. {{ gasto.monto|floatformat:0 }}</div>
+          {% if gasto.comprobante %}
+          <div><strong>Comprobante:</strong> {{ gasto.comprobante }}</div>
+          {% endif %}
+        </div>
+        <form method="post" class="d-flex gap-2 justify-content-end mt-3">
+          {% csrf_token %}
+          <a href="{% url 'gastos:index' %}" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Sí, eliminar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

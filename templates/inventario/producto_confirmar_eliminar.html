@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar producto{% endblock %}
+{% block nav_inventario %}active{% endblock %}
+{% block page_title %}Eliminar producto{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white fw-semibold">
+        <i class="bi bi-exclamation-triangle"></i> Confirmar eliminación
+      </div>
+      <div class="card-body">
+        <p class="mb-1">¿Estás seguro que querés eliminar este producto?</p>
+        <div class="alert alert-light border mt-3">
+          <div><strong>Código:</strong> {{ object.codigo }}</div>
+          <div><strong>Nombre:</strong> {{ object.nombre }}</div>
+          <div><strong>Modelo:</strong> {{ object.modelo_celular }}</div>
+          <div><strong>Stock actual:</strong> {{ object.stock_disponible }} unidades</div>
+        </div>
+        {% if object.stock_disponible > 0 %}
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle"></i>
+          Este producto tiene stock. Al eliminarlo se perderá el registro de inventario.
+        </div>
+        {% endif %}
+        <form method="post" class="d-flex gap-2 justify-content-end mt-3">
+          {% csrf_token %}
+          <a href="{% url 'inventario:index' %}" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Sí, eliminar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
