@@ -5,8 +5,31 @@
 {% block page_title %}Gestión de tienda online{% endblock %}
 
 {% block content %}
+
+<style>
+/* === ECOMMERCE MOBILE FIX === */
+@media (max-width: 768px) {
+
+  .ecommerce-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px;
+  }
+
+  .ecommerce-header .nav-tabs {
+    flex-wrap: wrap !important;
+    justify-content: center;
+  }
+
+  .ecommerce-header .btn {
+    width: 100%;
+  }
+
+}
+</style>
+
 <div class="card">
-  <div class="card-header d-flex align-items-center justify-content-between">
+  <div class="card-header ecommerce-header d-flex align-items-center justify-content-between">
     <ul class="nav nav-tabs card-header-tabs mb-0" id="ecommerceTabs">
       <li class="nav-item">
         <a class="nav-link {% if tab == 'catalogo' %}active{% endif %}"
