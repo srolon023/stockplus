@@ -101,6 +101,20 @@
   cursor: pointer;
 }
 
+
+/* === MOBILE ORDER FIX (POS STYLE) === */
+@media (max-width: 768px) {
+
+  .row > .col-lg-4 {
+    order: 2 !important; /* datos abajo */
+  }
+
+  .row > .col-lg-8 {
+    order: 1 !important; /* productos arriba */
+  }
+
+}
+
 </style>
   {% block extra_css %}{% endblock %}
 </head>
