@@ -26,7 +26,82 @@
     .htmx-indicator { opacity: 0; transition: opacity 0.3s; }
     .htmx-request .htmx-indicator { opacity: 1; }
     #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
-  </style>
+  
+/* === MOBILE SIDEBAR FIX === */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%) !important;
+    position: fixed !important;
+    z-index: 1050;
+  }
+
+  .sidebar.active {
+    transform: translateX(0) !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  .menu-toggle {
+    display: block !important;
+  }
+}
+
+/* botón hamburguesa */
+.menu-toggle {
+  display: none;
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+
+/* === FORCE MOBILE SIDEBAR FIX === */
+@media (max-width: 768px) {
+
+  body .sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 240px !important;
+    height: 100% !important;
+    transform: translateX(-100%) !important;
+    transition: 0.3s !important;
+    z-index: 2000 !important;
+  }
+
+  body .sidebar.show-mobile {
+    transform: translateX(0) !important;
+  }
+
+  body .main-content,
+  body .container,
+  body .container-fluid {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  body .menu-toggle {
+    display: block !important;
+  }
+}
+
+/* botón */
+.menu-toggle {
+  display: none;
+  font-size: 22px;
+  background: white;
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+</style>
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -115,5 +190,19 @@
   }, 4000);
 </script>
 {% block extra_js %}{% endblock %}
+
+<script>
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('active');
+}
+</script>
+
+
+<script>
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('show-mobile');
+}
+</script>
+
 </body>
 </html>
