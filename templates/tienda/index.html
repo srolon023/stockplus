@@ -657,7 +657,27 @@
       .stats-bar .row { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
       .stat-item     { min-width: 110px; }
     }
-  </style>
+  
+/* === FIX TRUST PILLS MOBILE === */
+@media (max-width: 768px) {
+
+  .trust-pills {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    justify-items: center;
+  }
+
+  .trust-pill {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.72rem;
+    padding: 6px 8px;
+  }
+
+}
+
+</style>
 </head>
 <body>
 
