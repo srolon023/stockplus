@@ -122,3 +122,6 @@ if IS_PRODUCTION:
     SECURE_HSTS_SECONDS = 0  # HSTS desactivado por ahora
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+
+
+CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
