@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+{% block branding %}
+<a href="/dashboard/" style="
+  display:inline-flex;align-items:center;gap:6px;
+  background:#e94560;color:#fff;font-weight:700;
+  padding:6px 14px;border-radius:8px;text-decoration:none;
+  font-size:13px;margin-right:12px;
+">
+  ← Dashboard
+</a>
+<a href="/admin/" id="site-name" style="color:#fff;text-decoration:none;font-size:1.1rem;font-weight:600;">
+  <var>{{ site_header|default:_('Django administration') }}</var>
+</a>
+{% endblock %}

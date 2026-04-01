@@ -1,18 +1,33 @@
 {% extends 'base.html' %}
+{% block extra_css %}
+<style>
+@media (max-width: 767px) {
+  .tabla-desktop { display: none !important; }
+  .cards-mobile { display: block !important; }
+  .topbar-mobile { flex-direction: column; align-items: stretch !important; gap: 10px; }
+  .topbar-mobile input { width: 100% !important; }
+  .topbar-mobile a { width: 100%; text-align: center; }
+}
+@media (min-width: 768px) {
+  .cards-mobile { display: none !important; }
+}
+</style>
+{% endblock %}
+
 {% load formato_guaranies %}
 {% block title %}Ventas{% endblock %}
 {% block nav_ventas %}active{% endblock %}
 {% block page_title %}Ventas{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 topbar-mobile">
   <input type="search" id="buscador" class="form-control" placeholder="Buscar venta..." style="width:280px">
   <a href="{% url 'ventas:nueva' %}" class="btn btn-primary">
     <i class="bi bi-plus-lg"></i> Nueva venta
   </a>
 </div>
 
-<div class="card">
+<div class="card tabla-desktop">
   <div class="card-header">
     Ventas <span class="badge bg-secondary">{{ ventas.count }}</span>
   </div>
@@ -81,13 +96,61 @@
     </table>
   </div>
 </div>
+
+<!-- Cards móvil -->
+<div class="cards-mobile" id="cards-ventas">
+  {% for v in ventas %}
+  <div class="card mb-2 card-venta-mobile"
+       data-search="{{ v.numero }} {{ v.cliente_nombre }} {{ v.get_canal_display }}{% for item in v.items.all %} {{ item.producto.codigo }} {{ item.producto.nombre }}{% endfor %}">
+    <div class="card-body py-2 px-3">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <span class="badge bg-light text-dark fw-semibold">{{ v.numero }}</span>
+          <span class="ms-1 text-muted small">{{ v.fecha }}</span>
+        </div>
+        <div>
+          {% if v.estado == 'confirmada' %}<span class="badge bg-success">Confirmada</span>
+          {% elif v.estado == 'borrador' %}<span class="badge bg-warning text-dark">Borrador</span>
+          {% elif v.estado == 'cancelada' %}<span class="badge bg-danger">Cancelada</span>
+          {% elif v.estado == 'entregada' %}<span class="badge bg-info text-dark">Entregada</span>
+          {% else %}<span class="badge bg-secondary">{{ v.get_estado_display }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-1">
+        <div>
+          <div class="fw-semibold small">{{ v.cliente_nombre|default:"Sin nombre" }}</div>
+          <div class="text-muted" style="font-size:.75rem;">
+            <span class="badge bg-secondary">{{ v.get_canal_display }}</span>
+            {{ v.items.count }} producto{{ v.items.count|pluralize }}
+          </div>
+        </div>
+        <div class="text-end">
+          <div class="fw-bold" style="color:#e94560;">{{ v.total|gs }}</div>
+          <div class="d-flex gap-1 mt-1">
+            <a href="{% url 'ventas:detalle' v.pk %}" class="btn btn-sm btn-outline-secondary py-0 px-2"><i class="bi bi-eye"></i></a>
+            {% if v.estado == 'borrador' %}
+            <a href="{% url 'ventas:editar' v.pk %}" class="btn btn-sm btn-outline-primary py-0 px-2"><i class="bi bi-pencil"></i></a>
+            {% endif %}
+            <a href="{% url 'ventas:eliminar' v.pk %}" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="bi bi-trash"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-cart-plus fs-1 d-block mb-2"></i>
+    No hay ventas todavía. <a href="{% url 'ventas:nueva' %}">Registrar la primera</a>
+  </div>
+  {% endfor %}
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.getElementById('buscador').addEventListener('input', function() {
   const q = this.value.toLowerCase();
-  document.querySelectorAll('#tabla-ventas tr').forEach(tr => {
+  document.querySelectorAll('#tabla-ventas tr, .card-venta-mobile').forEach(tr => {
     const texto = (tr.dataset.search || tr.textContent).toLowerCase();
     tr.style.display = texto.includes(q) ? '' : 'none';
   });

@@ -822,13 +822,15 @@
             </div>
             <p class="product-price">
               <span class="precio-valor"
-                    data-precio="{{ pw.precio_web|floatformat:0 }}">{{ pw.precio_web|gs }}</span>
+                    data-precio="{{ pw.precio_web|floatformat:0 }}"
+                    data-codigo="{{ pw.producto.codigo }}">{{ pw.precio_web|gs }}</span>
             </p>
             <button class="btn btn-pedir btn-pedir-action mt-auto"
                     type="button"
                     data-id="{{ pw.producto_id }}"
                     data-nombre="{{ pw.titulo_display }}"
-                    data-precio="{{ pw.precio_web|floatformat:0 }}">
+                    data-precio="{{ pw.precio_web|floatformat:0 }}"
+                    data-codigo="{{ pw.producto.codigo }}">
               Pedir ahora 🛒
             </button>
           </div>
@@ -1204,6 +1206,7 @@
     productoActual = {
       nombre: btn.dataset.nombre,
       precio: parseInt(btn.dataset.precio, 10) || 0,
+      codigo: btn.dataset.codigo || '',
     };
     document.getElementById('ordenNombreProducto').textContent = productoActual.nombre;
     document.getElementById('ordenPrecioProducto').textContent = fmtGs(productoActual.precio);
@@ -1247,6 +1250,7 @@
     var msg =
       'Hola! Vi su tienda online y me interesa:\n' +
       '\uD83D\uDCE6 Producto: ' + productoActual.nombre + '\n' +
+      '\uD83C\uDFF7\uFE0F Código: ' + productoActual.codigo + '\n' +
       '\uD83D\uDCB0 Precio: Gs. ' + precioFmt + '\n' +
       '\uD83D\uDD22 Cantidad: ' + cantidad + '\n' +
       '\uD83D\uDCCD Mi nombre es: ' + nombreCliente + '\n\n' +

@@ -1,18 +1,33 @@
 {% extends 'base.html' %}
+{% block extra_css %}
+<style>
+@media (max-width: 767px) {
+  .tabla-desktop { display: none !important; }
+  .cards-mobile { display: block !important; }
+  .topbar-mobile { flex-direction: column; align-items: stretch !important; gap: 10px; }
+  .topbar-mobile input { width: 100% !important; }
+  .topbar-mobile a { width: 100%; text-align: center; }
+}
+@media (min-width: 768px) {
+  .cards-mobile { display: none !important; }
+}
+</style>
+{% endblock %}
+
 {% load formato_guaranies %}
 {% block title %}Compras{% endblock %}
 {% block nav_compras %}active{% endblock %}
 {% block page_title %}Compras{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 topbar-mobile">
   <input type="search" id="buscador" class="form-control" placeholder="Buscar compra..." style="width:280px">
   <a href="{% url 'compras:nueva' %}" class="btn btn-primary">
     <i class="bi bi-plus-lg"></i> Nueva compra
   </a>
 </div>
 
-<div class="card">
+<div class="card tabla-desktop">
   <div class="card-header">
     Compras <span class="badge bg-secondary">{{ compras.count }}</span>
   </div>
@@ -76,6 +91,49 @@
       </tbody>
     </table>
   </div>
+</div>
+
+<!-- Cards móvil -->
+<div class="cards-mobile" id="cards-compras">
+  {% for c in compras %}
+  <div class="card mb-2 card-compra-mobile">
+    <div class="card-body py-2 px-3">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <span class="badge bg-light text-dark fw-semibold">{{ c.numero }}</span>
+          <span class="ms-1 text-muted small">{{ c.fecha }}</span>
+        </div>
+        <div>
+          {% if c.estado == 'recibida' %}<span class="badge bg-success">Recibida</span>
+          {% elif c.estado == 'borrador' %}<span class="badge bg-warning text-dark">Borrador</span>
+          {% elif c.estado == 'cancelada' %}<span class="badge bg-danger">Cancelada</span>
+          {% else %}<span class="badge bg-secondary">{{ c.estado }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-1">
+        <div>
+          <div class="fw-semibold small">{{ c.proveedor|default:"Sin proveedor" }}</div>
+          <div class="text-muted" style="font-size:.75rem;">{{ c.items.count }} producto{{ c.items.count|pluralize }}</div>
+        </div>
+        <div class="text-end">
+          <div class="fw-bold" style="color:#e94560;">{{ c.total|gs }}</div>
+          <div class="d-flex gap-1 mt-1">
+            <a href="{% url 'compras:detalle' c.pk %}" class="btn btn-sm btn-outline-secondary py-0 px-2"><i class="bi bi-eye"></i></a>
+            {% if c.estado == 'borrador' %}
+            <a href="{% url 'compras:editar' c.pk %}" class="btn btn-sm btn-outline-primary py-0 px-2"><i class="bi bi-pencil"></i></a>
+            {% endif %}
+            <a href="{% url 'compras:eliminar' c.pk %}" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="bi bi-trash"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-cart-plus fs-1 d-block mb-2"></i>
+    No hay compras todavía. <a href="{% url 'compras:nueva' %}">Registrar la primera</a>
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}
 

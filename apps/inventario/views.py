@@ -126,8 +126,14 @@ def producto_eliminar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
         codigo = producto.codigo
-        producto.delete()
-        messages.success(request, f'Producto {codigo} eliminado.')
+        try:
+            producto.delete()
+            messages.success(request, f'Producto {codigo} eliminado.')
+        except Exception:
+            # Tiene registros relacionados — desactivar en lugar de eliminar
+            producto.activo = False
+            producto.save(update_fields=['activo'])
+            messages.warning(request, f'Producto {codigo} tiene historial de ventas/compras y fue desactivado en lugar de eliminado.')
         return redirect('inventario:index')
     return render(request, 'inventario/producto_confirmar_eliminar.html', {'object': producto})
 
