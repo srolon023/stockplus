@@ -22,7 +22,10 @@
       "Bash(head -30 grep -n \"floatformat\\\\|Gs\\\\.\\\\||gs\" /home/sysadmin/stockplus/templates/compras/compra_detalle.html)",
       "Bash(head -20 grep -n \"floatformat\\\\|Gs\\\\.\\\\||gs\" /home/sysadmin/stockplus/templates/ventas/venta_detalle.html)",
       "Bash(head -20 grep -n \"floatformat\\\\|Gs\\\\.\\\\||gs\" /home/sysadmin/stockplus/templates/ecommerce/index.html)",
-      "Bash(head -20 grep -n \"floatformat\\\\|Gs\\\\.\\\\||gs\" /home/sysadmin/stockplus/templates/vendedores/dashboard.html)"
+      "Bash(head -20 grep -n \"floatformat\\\\|Gs\\\\.\\\\||gs\" /home/sysadmin/stockplus/templates/vendedores/dashboard.html)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
