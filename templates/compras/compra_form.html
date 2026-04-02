@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const baseProductos = (typeof PRODUCTOS !== 'undefined' && Array.isArray(PRODUCTOS)) ? PRODUCTOS : [];
 
   const nombres = uniqSorted(baseProductos.map(p => p.nombre));
-  const modelos = uniqSorted(baseProductos.map(p => p.modelo));
-  const colores = uniqSorted(baseProductos.map(p => p.color));
+  const modelos = uniqSorted(baseProductos.map(p => p.modelo || p.modelo_celular));
+  const colores = uniqSorted(baseProductos.map(p => p.color || p.color_nombre));
 
   function attachSuggestions(inputId, boxId, values) {
     const input = document.getElementById(inputId);
