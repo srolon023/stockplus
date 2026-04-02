@@ -1,9 +1,124 @@
 {% extends 'base.html' %}
-{% block title %}{% if compra %}Editar {{ compra.numero }}{% else %}Nueva compra{% endif %}{% endblock %}
+{% block title %}{% if compra %}Editar {{ compra.numero }}{% else %}Nueva compra{% endif %}
+// === AUTOCOMPLETE REAL POPUP NUEVO PRODUCTO ===
+document.addEventListener('DOMContentLoaded', function () {
+  function normalizar(s) {
+    return (s || '')
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  function uniqSorted(arr) {
+    return [...new Set(arr.filter(Boolean).map(v => v.toString().trim()).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+  }
+
+  // Usa PRODUCTOS si ya existe en la página
+  const baseProductos = (typeof PRODUCTOS !== 'undefined' && Array.isArray(PRODUCTOS)) ? PRODUCTOS : [];
+
+  const nombres = uniqSorted(baseProductos.map(p => p.nombre));
+  const modelos = uniqSorted(baseProductos.map(p => p.modelo));
+  const colores = uniqSorted(baseProductos.map(p => p.color));
+
+  function attachSuggestions(inputId, boxId, values) {
+    const input = document.getElementById(inputId);
+    const box = document.getElementById(boxId);
+    if (!input || !box) return;
+
+    function cerrar() {
+      box.style.display = 'none';
+      box.innerHTML = '';
+    }
+
+    function render(items) {
+      if (!items.length) {
+        cerrar();
+        return;
+      }
+      box.innerHTML = items.map(v =>
+        `<div class="np-suggest-item" data-value="${String(v).replace(/"/g, '&quot;')}">${v}</div>`
+      ).join('');
+      box.style.display = 'block';
+
+      box.querySelectorAll('.np-suggest-item').forEach(item => {
+        item.addEventListener('click', function () {
+          input.value = this.dataset.value;
+          cerrar();
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      });
+    }
+
+    function buscar() {
+      const q = normalizar(input.value);
+      if (!q) {
+        cerrar();
+        return;
+      }
+      const encontrados = values
+        .filter(v => normalizar(v).includes(q))
+        .slice(0, 8);
+      render(encontrados);
+    }
+
+    input.addEventListener('input', buscar);
+    input.addEventListener('focus', buscar);
+
+    document.addEventListener('click', function (e) {
+      if (!box.contains(e.target) && e.target !== input) {
+        cerrar();
+      }
+    });
+  }
+
+  attachSuggestions('np-nombre', 'np-suggest-nombre', nombres);
+  attachSuggestions('np-modelo', 'np-suggest-modelo', modelos);
+  attachSuggestions('np-color', 'np-suggest-color', colores);
+});
+
+{% endblock %}
 {% block nav_compras %}active{% endblock %}
 {% block page_title %}{% if compra %}Editar {{ compra.numero }}{% else %}Nueva compra{% endif %}{% endblock %}
 
 {% block content %}
+
+<style>
+/* === AUTOCOMPLETE REAL EN POPUP NUEVO PRODUCTO === */
+.np-suggest-wrap {
+  position: relative;
+}
+.np-suggest-box {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 2000;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: .5rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.14);
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+}
+.np-suggest-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: .95rem;
+}
+.np-suggest-item:last-child {
+  border-bottom: 0;
+}
+.np-suggest-item:hover,
+.np-suggest-item.active {
+  background: #eef2ff;
+}
+</style>
+
 
 <style>
 /* === SUGERENCIAS POPUP NUEVO PRODUCTO === */
@@ -229,7 +344,10 @@
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
-          <input type="text" id="np-nombre" class="form-control" placeholder="Ej: Funda Silicona" list="dl-np-nombre">
+          <div class="np-suggest-wrap">
+          <input type="text" id="np-nombre" class="form-control" placeholder="Ej: Funda Silicona">
+          <div id="np-suggest-nombre" class="np-suggest-box"></div>
+        </div>
           <div class="form-text sugerencia-hint">Sugerencias según productos ya cargados.</div>
         </div>
         <div class="row g-2">
