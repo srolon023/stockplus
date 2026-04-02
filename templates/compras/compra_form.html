@@ -4,6 +4,18 @@
 {% block page_title %}{% if compra %}Editar {{ compra.numero }}{% else %}Nueva compra{% endif %}{% endblock %}
 
 {% block content %}
+
+<style>
+/* === SUGERENCIAS POPUP NUEVO PRODUCTO === */
+#modalNuevoProducto input[list] {
+  background-image: none;
+}
+#modalNuevoProducto .form-text.sugerencia-hint {
+  font-size: .78rem;
+  color: #6c757d;
+}
+</style>
+
 <style>
 .autocomplete-wrap { position: relative; }
 .autocomplete-dropdown {
@@ -217,7 +229,8 @@
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
-          <input type="text" id="np-nombre" class="form-control" placeholder="Ej: Funda Silicona">
+          <input type="text" id="np-nombre" class="form-control" placeholder="Ej: Funda Silicona" list="dl-np-nombre">
+          <div class="form-text sugerencia-hint">Sugerencias según productos ya cargados.</div>
         </div>
         <div class="row g-2">
           <div class="col-6">
