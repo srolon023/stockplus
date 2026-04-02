@@ -1,26 +1,3 @@
-
-/* === FINANZAS MOBILE UX FIX === */
-@media (max-width: 768px) {
-
-  .finanzas-layout {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .finanzas-form {
-    order: 1;
-  }
-
-  .finanzas-table {
-    order: 2;
-  }
-
-  .movimientos-scroll {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-
-}
 {% extends 'base.html' %}
 {% load formato_guaranies %}
 {% block title %}Finanzas{% endblock %}
@@ -168,21 +145,16 @@
 </div>
 
 {# ── Tabla de movimientos + Formulario ───────────────────────────────────── #}
-<div class="row g-4 finanzas-layout">
+<div class="row g-4">
 
   {# Tabla #}
-  <div class="col-lg-8 finanzas-table">
+  <div class="col-lg-8">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
-<div class="p-2 border-bottom">
-  <input type="text" id="buscadorMov" class="form-control form-control-sm"
-         placeholder="Buscar movimiento...">
-</div>
-
         <span><i class="bi bi-list-ul"></i> Movimientos del mes</span>
         <span class="badge bg-secondary">{{ movimientos|length }}</span>
       </div>
-      <div class="table-responsive movimientos-scroll">
+      <div class="table-responsive">
         <table class="table table-sm table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
@@ -246,7 +218,7 @@
   </div>
 
   {# Formulario inversiones/retiros #}
-  <div class="col-lg-4 finanzas-form">
+  <div class="col-lg-4">
     <div class="card">
       <div class="card-header">
         <i class="bi bi-plus-circle"></i> Registrar movimiento manual
@@ -292,17 +264,3 @@
 
 </div>
 {% endblock %}
-
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-  const input = document.getElementById("buscadorMov");
-  if (!input) return;
-
-  input.addEventListener("keyup", function(){
-    const val = this.value.toLowerCase();
-    document.querySelectorAll("tbody tr").forEach(tr => {
-      tr.style.display = tr.innerText.toLowerCase().includes(val) ? "" : "none";
-    });
-  });
-});
-</script>
