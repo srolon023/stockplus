@@ -86,6 +86,35 @@ document.addEventListener('DOMContentLoaded', function () {
 {% block content %}
 
 <style>
+/* === AUTOCOMPLETE REAL POPUP COMPRAS V2 === */
+.np-suggest-wrap { position: relative; }
+.np-suggest-box {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 2500;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: .5rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.14);
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+}
+.np-suggest-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: .95rem;
+}
+.np-suggest-item:last-child { border-bottom: 0; }
+.np-suggest-item:hover,
+.np-suggest-item.active { background: #eef2ff; }
+</style>
+
+
+<style>
 /* === AUTOCOMPLETE REAL EN POPUP NUEVO PRODUCTO === */
 .np-suggest-wrap {
   position: relative;
@@ -345,7 +374,10 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="mb-3">
           <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
           <div class="np-suggest-wrap">
+          <div class="np-suggest-wrap">
           <input type="text" id="np-nombre" class="form-control" placeholder="Ej: Funda Silicona">
+          <div id="np-suggest-nombre" class="np-suggest-box"></div>
+        </div>
           <div id="np-suggest-nombre" class="np-suggest-box"></div>
         </div>
           <div class="form-text sugerencia-hint">Sugerencias según productos ya cargados.</div>
@@ -353,11 +385,17 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="row g-2">
           <div class="col-6">
             <label class="form-label fw-semibold">Modelo</label>
-            <input type="text" id="np-modelo" class="form-control" placeholder="Ej: iPhone 15 Pro">
+            <div class="np-suggest-wrap">
+          <input type="text" id="np-modelo" class="form-control" placeholder="Ej: iPhone 13 Pro Max">
+          <div id="np-suggest-modelo" class="np-suggest-box"></div>
+        </div>
           </div>
           <div class="col-6">
             <label class="form-label fw-semibold">Color</label>
-            <input type="text" id="np-color" class="form-control" placeholder="Ej: Negro">
+            <div class="np-suggest-wrap">
+          <input type="text" id="np-color" class="form-control" placeholder="Ej: Rosa">
+          <div id="np-suggest-color" class="np-suggest-box"></div>
+        </div>
           </div>
         </div>
         <div class="row g-2 mt-1">
