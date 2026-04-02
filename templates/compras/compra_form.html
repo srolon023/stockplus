@@ -86,7 +86,8 @@ document.addEventListener('DOMContentLoaded', function () {
 {% block content %}
 
 <style>
-/* === AUTOCOMPLETE REAL POPUP COMPRAS V2 === */
+
+/* === AUTOCOMPLETE REAL POPUP COMPRAS FIX3 === */
 .np-suggest-wrap { position: relative; }
 .np-suggest-box {
   position: absolute;
@@ -112,6 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
 .np-suggest-item:hover,
 .np-suggest-item.active { background: #eef2ff; }
 </style>
+
 
 
 <style>
@@ -375,7 +377,10 @@ document.addEventListener('DOMContentLoaded', function () {
           <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
           <div class="np-suggest-wrap">
           <div class="np-suggest-wrap">
+          <div class="np-suggest-wrap">
           <input type="text" id="np-nombre" class="form-control" placeholder="Ej: Funda Silicona">
+          <div id="np-suggest-nombre" class="np-suggest-box"></div>
+        </div>
           <div id="np-suggest-nombre" class="np-suggest-box"></div>
         </div>
           <div id="np-suggest-nombre" class="np-suggest-box"></div>
@@ -386,14 +391,20 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="col-6">
             <label class="form-label fw-semibold">Modelo</label>
             <div class="np-suggest-wrap">
+          <div class="np-suggest-wrap">
           <input type="text" id="np-modelo" class="form-control" placeholder="Ej: iPhone 13 Pro Max">
+          <div id="np-suggest-modelo" class="np-suggest-box"></div>
+        </div>
           <div id="np-suggest-modelo" class="np-suggest-box"></div>
         </div>
           </div>
           <div class="col-6">
             <label class="form-label fw-semibold">Color</label>
             <div class="np-suggest-wrap">
+          <div class="np-suggest-wrap">
           <input type="text" id="np-color" class="form-control" placeholder="Ej: Rosa">
+          <div id="np-suggest-color" class="np-suggest-box"></div>
+        </div>
           <div id="np-suggest-color" class="np-suggest-box"></div>
         </div>
           </div>
