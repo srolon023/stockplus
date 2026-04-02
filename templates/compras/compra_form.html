@@ -1,212 +1,54 @@
 {% extends 'base.html' %}
-{% block title %}{% if compra %}Editar {{ compra.numero }}{% else %}Nueva compra{% endif %}
-// === AUTOCOMPLETE REAL POPUP NUEVO PRODUCTO ===
-document.addEventListener('DOMContentLoaded', function () {
-  function normalizar(s) {
-    return (s || '')
-      .toString()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim();
-  }
-
-  function uniqSorted(arr) {
-    return [...new Set(arr.filter(Boolean).map(v => v.toString().trim()).filter(Boolean))]
-      .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
-  }
-
-  // Usa PRODUCTOS si ya existe en la página
-  const baseProductos = (typeof PRODUCTOS !== 'undefined' && Array.isArray(PRODUCTOS)) ? PRODUCTOS : [];
-
-  const nombres = uniqSorted(baseProductos.map(p => p.nombre));
-  const modelos = uniqSorted(baseProductos.map(p => p.modelo || p.modelo_celular));
-  const colores = uniqSorted(baseProductos.map(p => p.color || p.color_nombre));
-
-  function attachSuggestions(inputId, boxId, values) {
-    const input = document.getElementById(inputId);
-    const box = document.getElementById(boxId);
-    if (!input || !box) return;
-
-    function cerrar() {
-      box.style.display = 'none';
-      box.innerHTML = '';
-    }
-
-    function render(items) {
-      if (!items.length) {
-        cerrar();
-        return;
-      }
-      box.innerHTML = items.map(v =>
-        `<div class="np-suggest-item" data-value="${String(v).replace(/"/g, '&quot;')}">${v}</div>`
-      ).join('');
-      box.style.display = 'block';
-
-      box.querySelectorAll('.np-suggest-item').forEach(item => {
-        item.addEventListener('click', function () {
-          input.value = this.dataset.value;
-          cerrar();
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-        });
-      });
-    }
-
-    function buscar() {
-      const q = normalizar(input.value);
-      if (!q) {
-        cerrar();
-        return;
-      }
-      const encontrados = values
-        .filter(v => normalizar(v).includes(q))
-        .slice(0, 8);
-      render(encontrados);
-    }
-
-    input.addEventListener('input', buscar);
-    input.addEventListener('focus', buscar);
-
-    document.addEventListener('click', function (e) {
-      if (!box.contains(e.target) && e.target !== input) {
-        cerrar();
-      }
-    });
-  }
-
-  attachSuggestions('np-nombre', 'np-suggest-nombre', nombres);
-  attachSuggestions('np-modelo', 'np-suggest-modelo', modelos);
-  attachSuggestions('np-color', 'np-suggest-color', colores);
-});
-
-{% endblock %}
+{% block title %}{% if compra %}Editar {{ compra.numero }}{% else %}Nueva compra{% endif %}{% endblock %}
 {% block nav_compras %}active{% endblock %}
 {% block page_title %}{% if compra %}Editar {{ compra.numero }}{% else %}Nueva compra{% endif %}{% endblock %}
 
-{% block content %}
-
-<style>
-
-/* === AUTOCOMPLETE REAL POPUP COMPRAS FIX3 === */
-.np-suggest-wrap { position: relative; }
-.np-suggest-box {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 2500;
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: .5rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,.14);
-  max-height: 220px;
-  overflow-y: auto;
-  display: none;
-}
-.np-suggest-item {
-  padding: 10px 12px;
-  cursor: pointer;
-  border-bottom: 1px solid #f1f1f1;
-  font-size: .95rem;
-}
-.np-suggest-item:last-child { border-bottom: 0; }
-.np-suggest-item:hover,
-.np-suggest-item.active { background: #eef2ff; }
-</style>
-
-
-
-<style>
-/* === AUTOCOMPLETE REAL EN POPUP NUEVO PRODUCTO === */
-.np-suggest-wrap {
-  position: relative;
-}
-.np-suggest-box {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 2000;
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: .5rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,.14);
-  max-height: 220px;
-  overflow-y: auto;
-  display: none;
-}
-.np-suggest-item {
-  padding: 10px 12px;
-  cursor: pointer;
-  border-bottom: 1px solid #f1f1f1;
-  font-size: .95rem;
-}
-.np-suggest-item:last-child {
-  border-bottom: 0;
-}
-.np-suggest-item:hover,
-.np-suggest-item.active {
-  background: #eef2ff;
-}
-</style>
-
-
-<style>
-/* === SUGERENCIAS POPUP NUEVO PRODUCTO === */
-#modalNuevoProducto input[list] {
-  background-image: none;
-}
-#modalNuevoProducto .form-text.sugerencia-hint {
-  font-size: .78rem;
-  color: #6c757d;
-}
-</style>
-
+{% block extra_css %}
 <style>
 .autocomplete-wrap { position: relative; }
 .autocomplete-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0; right: 0;
-  z-index: 1050;
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 0.5rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,.14);
-  max-height: 360px;
-  overflow-y: auto;
-  display: none;
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  z-index: 1050; background: #fff; border: 1px solid #dee2e6;
+  border-radius: 0.5rem; box-shadow: 0 8px 24px rgba(0,0,0,.14);
+  max-height: 360px; overflow-y: auto; display: none;
 }
 .autocomplete-item {
-  padding: 12px 16px;
-  cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background 0.1s;
-  min-height: 52px;
+  padding: 12px 16px; cursor: pointer;
+  border-bottom: 1px solid #f0f0f0; transition: background 0.1s;
 }
 .autocomplete-item:last-child { border-bottom: none; }
 .autocomplete-item:hover, .autocomplete-item.active { background: #eef2ff; }
+.np-wrap { position: relative; }
+.np-box {
+  position: absolute; top: calc(100% + 3px); left: 0; right: 0;
+  z-index: 2000; background: #fff; border: 1px solid #dee2e6;
+  border-radius: .5rem; box-shadow: 0 8px 24px rgba(0,0,0,.14);
+  max-height: 200px; overflow-y: auto; display: none;
+}
+.np-item {
+  padding: 9px 12px; cursor: pointer;
+  border-bottom: 1px solid #f1f1f1; font-size: .9rem;
+}
+.np-item:last-child { border-bottom: none; }
+.np-item:hover { background: #eef2ff; }
 @media (max-width: 991.98px) {
   .total-sticky-mobile {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 1040;
-    background: #fff;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    z-index: 1040; background: #fff;
     border-top: 2px solid #0d6efd;
-    padding: 10px 16px;
-    box-shadow: 0 -4px 16px rgba(0,0,0,.12);
+    padding: 10px 16px; box-shadow: 0 -4px 16px rgba(0,0,0,.12);
   }
   body { padding-bottom: 68px; }
-  .input-touch { min-height: 48px !important; font-size: 1rem !important; }
-  .btn-lg-touch { min-height: 52px !important; font-size: 1rem !important; }
+  .input-touch { min-height: 46px !important; font-size: 1rem !important; }
 }
 </style>
+{% endblock %}
 
+{% block content %}
 <form method="post" id="form-compra">
 {% csrf_token %}
 <div class="row g-4">
 
-  <!-- ── SIDEBAR ────────────────────────────────────── -->
   <div class="col-lg-4">
     <div class="card">
       <div class="card-header">Datos generales</div>
@@ -249,31 +91,26 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
       </div>
     </div>
-
     <div class="card mt-3 d-none d-lg-block">
       <div class="card-header">Resumen</div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-2">
-          <span class="text-muted">Subtotal productos</span>
-          <span id="resumen-productos">Gs. 0</span>
+          <span class="text-muted">Subtotal productos</span><span id="resumen-productos">Gs. 0</span>
         </div>
         <div class="d-flex justify-content-between mb-2">
-          <span class="text-muted">Costos adicionales</span>
-          <span id="resumen-adicionales">Gs. 0</span>
+          <span class="text-muted">Costos adicionales</span><span id="resumen-adicionales">Gs. 0</span>
         </div>
         <hr>
         <div class="d-flex justify-content-between fw-bold fs-5">
-          <span>Total</span>
-          <span id="resumen-total">Gs. 0</span>
+          <span>Total</span><span id="resumen-total">Gs. 0</span>
         </div>
       </div>
     </div>
-
     <div class="d-grid gap-2 mt-3">
-      <button type="submit" name="accion" value="confirmar" class="btn btn-primary btn-lg btn-lg-touch">
+      <button type="submit" name="accion" value="confirmar" class="btn btn-primary btn-lg">
         <i class="bi bi-check-circle"></i> Confirmar y actualizar stock
       </button>
-      <button type="submit" name="accion" value="borrador" class="btn btn-outline-secondary btn-lg-touch">
+      <button type="submit" name="accion" value="borrador" class="btn btn-outline-secondary">
         <i class="bi bi-save"></i> {% if compra %}Guardar cambios{% else %}Guardar como borrador{% endif %}
       </button>
       <a href="{% if compra %}{% url 'compras:detalle' compra.pk %}{% else %}{% url 'compras:index' %}{% endif %}"
@@ -281,32 +118,25 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
 
-  <!-- ── MAIN ──────────────────────────────────────── -->
   <div class="col-lg-8">
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-box-seam"></i> Productos comprados</span>
-        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="abrirPopupProducto()">
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="abrirModalProducto()">
           <i class="bi bi-plus-circle"></i> Producto nuevo
         </button>
       </div>
-
-      <!-- Buscador autocomplete -->
       <div class="card-body border-bottom pb-3">
         <div class="autocomplete-wrap">
-          <input type="text" id="buscar-producto"
-                 class="form-control form-control-lg input-touch"
+          <input type="text" id="buscar-producto" class="form-control form-control-lg input-touch"
                  placeholder="Buscar por código, nombre, modelo o color..."
-                 autocomplete="off" spellcheck="false"
-                 aria-label="Buscar producto">
-          <div id="dropdown-productos" class="autocomplete-dropdown" role="listbox"></div>
+                 autocomplete="off" spellcheck="false">
+          <div id="dropdown-productos" class="autocomplete-dropdown"></div>
         </div>
         <div class="text-muted small mt-2">
           <i class="bi bi-info-circle"></i> Escribí para buscar y seleccioná del listado
         </div>
       </div>
-
-      <!-- Tabla de productos -->
       <div class="table-responsive">
         <table class="table align-middle mb-0" id="tabla-productos">
           <thead class="table-light">
@@ -326,7 +156,6 @@ document.addEventListener('DOMContentLoaded', function () {
         Buscá un producto arriba para agregar
       </div>
     </div>
-
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-receipt"></i> Costos adicionales</span>
@@ -338,10 +167,8 @@ document.addEventListener('DOMContentLoaded', function () {
         <table class="table align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th>Concepto</th>
-              <th>Descripción</th>
-              <th style="width:150px">Monto (Gs.)</th>
-              <th style="width:40px"></th>
+              <th>Concepto</th><th>Descripción</th>
+              <th style="width:150px">Monto (Gs.)</th><th style="width:40px"></th>
             </tr>
           </thead>
           <tbody id="items-adicionales"></tbody>
@@ -352,19 +179,16 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 </form>
 
-<!-- Barra total sticky en mobile -->
 <div class="total-sticky-mobile d-lg-none">
   <div class="d-flex justify-content-between align-items-center">
     <span class="text-muted small">
-      Productos: <strong id="resumen-productos-m">Gs. 0</strong>
-      &nbsp;|&nbsp;
-      Adicionales: <strong id="resumen-adicionales-m">Gs. 0</strong>
+      Prod: <strong id="resumen-productos-m">Gs. 0</strong> &nbsp;|&nbsp;
+      Adic: <strong id="resumen-adicionales-m">Gs. 0</strong>
     </span>
-    <span class="fw-bold fs-6">Total: <span id="resumen-total-m" class="text-primary">Gs. 0</span></span>
+    <span class="fw-bold">Total: <span id="resumen-total-m" class="text-primary">Gs. 0</span></span>
   </div>
 </div>
 
-<!-- POPUP: Crear nuevo producto -->
 <div class="modal fade" id="modalNuevoProducto" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -375,45 +199,32 @@ document.addEventListener('DOMContentLoaded', function () {
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
-          <div class="np-suggest-wrap">
-          <div class="np-suggest-wrap">
-          <div class="np-suggest-wrap">
-          <input type="text" id="np-nombre" class="form-control" placeholder="Ej: Funda Silicona">
-          <div id="np-suggest-nombre" class="np-suggest-box"></div>
-        </div>
-          <div id="np-suggest-nombre" class="np-suggest-box"></div>
-        </div>
-          <div id="np-suggest-nombre" class="np-suggest-box"></div>
-        </div>
-          <div class="form-text sugerencia-hint">Sugerencias según productos ya cargados.</div>
+          <div class="np-wrap">
+            <input type="text" id="np-nombre" class="form-control" placeholder="Ej: Funda Silicona" autocomplete="off">
+            <div id="np-box-nombre" class="np-box"></div>
+          </div>
         </div>
         <div class="row g-2">
           <div class="col-6">
             <label class="form-label fw-semibold">Modelo</label>
-            <div class="np-suggest-wrap">
-          <div class="np-suggest-wrap">
-          <input type="text" id="np-modelo" class="form-control" placeholder="Ej: iPhone 13 Pro Max">
-          <div id="np-suggest-modelo" class="np-suggest-box"></div>
-        </div>
-          <div id="np-suggest-modelo" class="np-suggest-box"></div>
-        </div>
+            <div class="np-wrap">
+              <input type="text" id="np-modelo" class="form-control" placeholder="Ej: iPhone 13 Pro" autocomplete="off">
+              <div id="np-box-modelo" class="np-box"></div>
+            </div>
           </div>
           <div class="col-6">
             <label class="form-label fw-semibold">Color</label>
-            <div class="np-suggest-wrap">
-          <div class="np-suggest-wrap">
-          <input type="text" id="np-color" class="form-control" placeholder="Ej: Rosa">
-          <div id="np-suggest-color" class="np-suggest-box"></div>
-        </div>
-          <div id="np-suggest-color" class="np-suggest-box"></div>
-        </div>
+            <div class="np-wrap">
+              <input type="text" id="np-color" class="form-control" placeholder="Ej: Rosa" autocomplete="off">
+              <div id="np-box-color" class="np-box"></div>
+            </div>
           </div>
         </div>
         <div class="row g-2 mt-1">
           <div class="col-6">
             <label class="form-label fw-semibold">Precio costo (Gs.)</label>
             <input type="number" id="np-costo" class="form-control" value="0" min="0"
-                   oninput="document.getElementById('np-venta').value = Math.round(parseFloat(this.value || 0) * 2.5)">
+                   oninput="document.getElementById('np-venta').value=Math.round(parseFloat(this.value||0)*2.5)">
           </div>
           <div class="col-6">
             <label class="form-label fw-semibold">Precio venta (Gs.)</label>
@@ -432,7 +243,6 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
@@ -469,51 +279,42 @@ function formatGs(n) {
   return 'Gs. ' + Math.round(n).toLocaleString('es-PY');
 }
 
-// ── Autocomplete ──────────────────────────────────────────────────────────────
+function normalizar(s) {
+  return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+}
 
+// Autocomplete buscador principal
 let highlightIdx = -1;
-
 const inputBuscar = document.getElementById('buscar-producto');
 const ddProductos = document.getElementById('dropdown-productos');
 
-inputBuscar.addEventListener('input', function () {
+inputBuscar.addEventListener('input', function() {
   const q = this.value.trim();
   highlightIdx = -1;
   if (!q) { cerrarDropdown(); return; }
-  const q_lower = q.toLowerCase();
-  const resultados = PRODUCTOS.filter(p => {
-    const haystack = (p.codigo + ' ' + p.nombre + ' ' + p.modelo + ' ' + p.color).toLowerCase();
-    return haystack.includes(q_lower);
-  }).slice(0, 15);
+  const qn = normalizar(q);
+  const resultados = PRODUCTOS.filter(p =>
+    normalizar(p.codigo+' '+p.nombre+' '+p.modelo+' '+p.color).includes(qn)
+  ).slice(0, 15);
   mostrarDropdown(resultados);
 });
 
-inputBuscar.addEventListener('keydown', function (e) {
+inputBuscar.addEventListener('keydown', function(e) {
   const items = ddProductos.querySelectorAll('.autocomplete-item[data-id]');
   if (!items.length) return;
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    highlightIdx = Math.min(highlightIdx + 1, items.length - 1);
-    actualizarHighlight(items);
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    highlightIdx = Math.max(highlightIdx - 1, 0);
-    actualizarHighlight(items);
-  } else if (e.key === 'Enter') {
-    e.preventDefault();
-    if (highlightIdx >= 0 && items[highlightIdx]) items[highlightIdx].click();
-  } else if (e.key === 'Escape') {
-    cerrarDropdown();
-  }
+  if (e.key==='ArrowDown'){e.preventDefault();highlightIdx=Math.min(highlightIdx+1,items.length-1);actualizarHighlight(items);}
+  else if(e.key==='ArrowUp'){e.preventDefault();highlightIdx=Math.max(highlightIdx-1,0);actualizarHighlight(items);}
+  else if(e.key==='Enter'){e.preventDefault();if(highlightIdx>=0)items[highlightIdx].click();}
+  else if(e.key==='Escape'){cerrarDropdown();}
 });
 
-document.addEventListener('click', function (e) {
+document.addEventListener('click', function(e) {
   if (!e.target.closest('.autocomplete-wrap')) cerrarDropdown();
 });
 
 function actualizarHighlight(items) {
-  items.forEach((el, i) => el.classList.toggle('active', i === highlightIdx));
-  if (highlightIdx >= 0) items[highlightIdx].scrollIntoView({ block: 'nearest' });
+  items.forEach((el,i) => el.classList.toggle('active', i===highlightIdx));
+  if (highlightIdx>=0) items[highlightIdx].scrollIntoView({block:'nearest'});
 }
 
 function mostrarDropdown(resultados) {
@@ -524,20 +325,15 @@ function mostrarDropdown(resultados) {
   }
   ddProductos.innerHTML = resultados.map(p => {
     const nombre = getNombre(p);
-    const stockBadge = p.stock <= 0
+    const stockBadge = p.stock<=0
       ? '<span class="badge bg-danger ms-1">Sin stock</span>'
-      : `<span class="badge bg-success ms-1">Stock: ${p.stock}</span>`;
-    return `<div class="autocomplete-item" data-id="${p.id}" role="option"
-              onclick="seleccionarProducto(${p.id})">
-        <div class="d-flex justify-content-between align-items-start gap-2">
-          <div>
-            <span class="badge bg-secondary">${p.codigo}</span>
-            <strong class="ms-1">${nombre}</strong>
-            ${stockBadge}
-          </div>
-          <span class="text-muted small text-nowrap">Costo: ${formatGs(p.precio_costo)}</span>
-        </div>
-      </div>`;
+      : '<span class="badge bg-success ms-1">Stock: '+p.stock+'</span>';
+    return '<div class="autocomplete-item" data-id="'+p.id+'" onclick="seleccionarProducto('+p.id+')">'
+      +'<div class="d-flex justify-content-between align-items-start gap-2">'
+      +'<div><span class="badge bg-secondary">'+p.codigo+'</span>'
+      +'<strong class="ms-1">'+nombre+'</strong>'+stockBadge+'</div>'
+      +'<span class="text-muted small text-nowrap">Costo: '+formatGs(p.precio_costo)+'</span>'
+      +'</div></div>';
   }).join('');
   ddProductos.style.display = 'block';
 }
@@ -548,7 +344,7 @@ function cerrarDropdown() {
 }
 
 function seleccionarProducto(id) {
-  const p = PRODUCTOS.find(x => x.id === id);
+  const p = PRODUCTOS.find(x => x.id===id);
   if (!p) return;
   agregarFilaProducto(p);
   inputBuscar.value = '';
@@ -556,39 +352,20 @@ function seleccionarProducto(id) {
   inputBuscar.focus();
 }
 
-// ── Filas de producto ─────────────────────────────────────────────────────────
-
-function agregarFilaProducto(p, precioOverride = null, cantOverride = 1) {
+function agregarFilaProducto(p, precioOverride=null, cantOverride=1) {
   document.getElementById('empty-productos').style.display = 'none';
   const tbody = document.getElementById('items-productos');
-  const precio = precioOverride !== null ? precioOverride : p.precio_costo;
-  const nombre = getNombre(p);
+  const precio = precioOverride!==null ? precioOverride : p.precio_costo;
   const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td>
-      <input type="hidden" name="producto_id[]" value="${p.id}">
-      <span class="badge bg-secondary">${p.codigo}</span>
-      <span class="fw-semibold ms-1">${nombre}</span><br>
-      <span class="text-muted small">Stock actual: ${p.stock}</span>
-    </td>
-    <td>
-      <input type="number" name="cantidad[]"
-             class="form-control form-control-sm"
-             value="${cantOverride}" min="1" oninput="recalcular()">
-    </td>
-    <td>
-      <input type="number" name="precio_unitario[]"
-             class="form-control form-control-sm precio-unit"
-             value="${precio}" min="0" oninput="recalcular()">
-    </td>
-    <td><span class="subtotal-item fw-semibold">Gs. 0</span></td>
-    <td>
-      <button type="button" class="btn btn-sm btn-outline-danger"
-              onclick="this.closest('tr').remove(); actualizarEmptyState(); recalcular()">
-        <i class="bi bi-x"></i>
-      </button>
-    </td>
-  `;
+  tr.innerHTML =
+    '<td><input type="hidden" name="producto_id[]" value="'+p.id+'">'
+    +'<span class="badge bg-secondary">'+p.codigo+'</span>'
+    +'<span class="fw-semibold ms-1">'+getNombre(p)+'</span><br>'
+    +'<span class="text-muted small">Stock: '+p.stock+'</span></td>'
+    +'<td><input type="number" name="cantidad[]" class="form-control form-control-sm" value="'+cantOverride+'" min="1" oninput="recalcular()"></td>'
+    +'<td><input type="number" name="precio_unitario[]" class="form-control form-control-sm precio-unit" value="'+precio+'" min="0" oninput="recalcular()"></td>'
+    +'<td><span class="subtotal-item fw-semibold">Gs. 0</span></td>'
+    +'<td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest(\'tr\').remove();actualizarEmptyState();recalcular()"><i class="bi bi-x"></i></button></td>';
   tbody.appendChild(tr);
   recalcular();
 }
@@ -597,113 +374,131 @@ function agregarFilaHuerfana(pid, precio, cant) {
   document.getElementById('empty-productos').style.display = 'none';
   const tbody = document.getElementById('items-productos');
   const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td>
-      <input type="hidden" name="producto_id[]" value="${pid}">
-      <span class="text-muted fst-italic">Producto #${pid}</span>
-    </td>
-    <td><input type="number" name="cantidad[]" class="form-control form-control-sm" value="${cant}" min="1" oninput="recalcular()"></td>
-    <td><input type="number" name="precio_unitario[]" class="form-control form-control-sm precio-unit" value="${precio}" min="0" oninput="recalcular()"></td>
-    <td><span class="subtotal-item fw-semibold">Gs. 0</span></td>
-    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove();actualizarEmptyState();recalcular()"><i class="bi bi-x"></i></button></td>
-  `;
+  tr.innerHTML =
+    '<td><input type="hidden" name="producto_id[]" value="'+pid+'"><span class="text-muted fst-italic">Producto #'+pid+'</span></td>'
+    +'<td><input type="number" name="cantidad[]" class="form-control form-control-sm" value="'+cant+'" min="1" oninput="recalcular()"></td>'
+    +'<td><input type="number" name="precio_unitario[]" class="form-control form-control-sm precio-unit" value="'+precio+'" min="0" oninput="recalcular()"></td>'
+    +'<td><span class="subtotal-item fw-semibold">Gs. 0</span></td>'
+    +'<td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest(\'tr\').remove();actualizarEmptyState();recalcular()"><i class="bi bi-x"></i></button></td>';
   tbody.appendChild(tr);
   recalcular();
 }
 
 function actualizarEmptyState() {
-  const vacio = document.getElementById('items-productos').children.length === 0;
+  const vacio = document.getElementById('items-productos').children.length===0;
   document.getElementById('empty-productos').style.display = vacio ? 'block' : 'none';
 }
 
-// ── Adicionales ───────────────────────────────────────────────────────────────
-
 function agregarAdicional() {
   const tbody = document.getElementById('items-adicionales');
-  const opts = CONCEPTOS.map(c => `<option value="${c.id}">${c.texto}</option>`).join('');
+  const opts = CONCEPTOS.map(c => '<option value="'+c.id+'">'+c.texto+'</option>').join('');
   const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td>
-      <select name="concepto_id[]" class="form-select form-select-sm" required>
-        <option value="">Seleccionar...</option>${opts}
-      </select>
-    </td>
-    <td><input type="text" name="adicional_desc[]" class="form-control form-control-sm" placeholder="Detalle opcional"></td>
-    <td><input type="number" name="adicional_monto[]" class="form-control form-control-sm" value="0" min="0" oninput="recalcular()"></td>
-    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove();recalcular()"><i class="bi bi-x"></i></button></td>
-  `;
+  tr.innerHTML =
+    '<td><select name="concepto_id[]" class="form-select form-select-sm" required><option value="">Seleccionar...</option>'+opts+'</select></td>'
+    +'<td><input type="text" name="adicional_desc[]" class="form-control form-control-sm" placeholder="Detalle opcional"></td>'
+    +'<td><input type="number" name="adicional_monto[]" class="form-control form-control-sm" value="0" min="0" oninput="recalcular()"></td>'
+    +'<td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest(\'tr\').remove();recalcular()"><i class="bi bi-x"></i></button></td>';
   tbody.appendChild(tr);
 }
 
 function agregarAdicionalExistente(cid, desc, monto) {
   agregarAdicional();
   const rows = document.querySelectorAll('#items-adicionales tr');
-  const tr = rows[rows.length - 1];
+  const tr = rows[rows.length-1];
   tr.querySelector('select').value = cid;
   tr.querySelector('[name="adicional_desc[]"]').value = desc;
   tr.querySelector('[name="adicional_monto[]"]').value = monto;
   recalcular();
 }
 
-// ── Recalcular totales ────────────────────────────────────────────────────────
-
 function recalcular() {
   let totalProd = 0;
   document.querySelectorAll('#items-productos tr').forEach(tr => {
-    const cant   = parseFloat(tr.querySelector('[name="cantidad[]"]')?.value) || 0;
-    const precio = parseFloat(tr.querySelector('[name="precio_unitario[]"]')?.value) || 0;
-    const sub    = cant * precio;
+    const cant   = parseFloat(tr.querySelector('[name="cantidad[]"]')?.value)||0;
+    const precio = parseFloat(tr.querySelector('[name="precio_unitario[]"]')?.value)||0;
+    const sub    = cant*precio;
     totalProd += sub;
     const span = tr.querySelector('.subtotal-item');
     if (span) span.textContent = formatGs(sub);
   });
   let totalAd = 0;
   document.querySelectorAll('#items-adicionales tr').forEach(tr => {
-    totalAd += parseFloat(tr.querySelector('[name="adicional_monto[]"]')?.value) || 0;
+    totalAd += parseFloat(tr.querySelector('[name="adicional_monto[]"]')?.value)||0;
   });
   document.getElementById('resumen-productos').textContent = formatGs(totalProd);
   document.getElementById('resumen-adicionales').textContent = formatGs(totalAd);
-  document.getElementById('resumen-total').textContent = formatGs(totalProd + totalAd);
-  // Mobile sticky bar
-  const mProd = document.getElementById('resumen-productos-m');
-  const mAd   = document.getElementById('resumen-adicionales-m');
-  const mTot  = document.getElementById('resumen-total-m');
-  if (mProd) mProd.textContent = formatGs(totalProd);
-  if (mAd)   mAd.textContent   = formatGs(totalAd);
-  if (mTot)  mTot.textContent  = formatGs(totalProd + totalAd);
+  document.getElementById('resumen-total').textContent = formatGs(totalProd+totalAd);
+  const mP=document.getElementById('resumen-productos-m');
+  const mA=document.getElementById('resumen-adicionales-m');
+  const mT=document.getElementById('resumen-total-m');
+  if(mP) mP.textContent=formatGs(totalProd);
+  if(mA) mA.textContent=formatGs(totalAd);
+  if(mT) mT.textContent=formatGs(totalProd+totalAd);
 }
 
 function mostrarTipoCambio(val) {
-  document.getElementById('tipo-cambio-wrap').style.display = val === 'PYG' ? 'none' : 'block';
+  document.getElementById('tipo-cambio-wrap').style.display = val==='PYG' ? 'none' : 'block';
 }
 
-// ── Modal nuevo producto ──────────────────────────────────────────────────────
+// Autocomplete modal nuevo producto
+(function() {
+  function uniqSorted(arr) {
+    return [...new Set(arr.filter(Boolean).map(v=>v.toString().trim()).filter(Boolean))]
+      .sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+  }
+  const nombres = uniqSorted(PRODUCTOS.map(p=>p.nombre));
+  const modelos  = uniqSorted(PRODUCTOS.map(p=>p.modelo));
+  const colores  = uniqSorted(PRODUCTOS.map(p=>p.color));
 
-function abrirPopupProducto() {
-  ['np-nombre', 'np-modelo', 'np-color'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('np-costo').value = '0';
-  document.getElementById('np-venta').value = '0';
-  document.getElementById('np-error').style.display = 'none';
-  document.getElementById('np-ok').style.display = 'none';
+  function attach(inputId, boxId, values) {
+    const input = document.getElementById(inputId);
+    const box   = document.getElementById(boxId);
+    if (!input||!box) return;
+    function cerrar(){box.style.display='none';box.innerHTML='';}
+    function render(items){
+      if(!items.length){cerrar();return;}
+      box.innerHTML=items.map(v=>'<div class="np-item" data-v="'+v.replace(/"/g,'&quot;')+'">'+v+'</div>').join('');
+      box.style.display='block';
+      box.querySelectorAll('.np-item').forEach(el=>{
+        el.addEventListener('click',function(){input.value=this.dataset.v;cerrar();});
+      });
+    }
+    function buscar(){
+      const q=normalizar(input.value);
+      if(!q){cerrar();return;}
+      render(values.filter(v=>normalizar(v).includes(q)).slice(0,8));
+    }
+    input.addEventListener('input',buscar);
+    input.addEventListener('focus',buscar);
+    document.addEventListener('click',e=>{if(!box.contains(e.target)&&e.target!==input)cerrar();});
+  }
+
+  attach('np-nombre','np-box-nombre',nombres);
+  attach('np-modelo','np-box-modelo',modelos);
+  attach('np-color', 'np-box-color', colores);
+})();
+
+function abrirModalProducto() {
+  ['np-nombre','np-modelo','np-color'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('np-costo').value='0';
+  document.getElementById('np-venta').value='0';
+  document.getElementById('np-error').style.display='none';
+  document.getElementById('np-ok').style.display='none';
   bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNuevoProducto')).show();
 }
 
 function guardarNuevoProducto() {
   const nombre = document.getElementById('np-nombre').value.trim();
   if (!nombre) {
-    document.getElementById('np-error').textContent = 'El nombre es obligatorio.';
-    document.getElementById('np-error').style.display = 'block';
+    document.getElementById('np-error').textContent='El nombre es obligatorio.';
+    document.getElementById('np-error').style.display='block';
     return;
   }
-  document.getElementById('np-error').style.display = 'none';
-
+  document.getElementById('np-error').style.display='none';
   fetch('/inventario/api/crear-producto/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)?.[1] || ''
-    },
-    body: JSON.stringify({
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-CSRFToken':document.cookie.match(/csrftoken=([^;]+)/)?.[1]||''},
+    body:JSON.stringify({
       nombre:         nombre,
       modelo_celular: document.getElementById('np-modelo').value.trim(),
       color:          document.getElementById('np-color').value.trim(),
@@ -711,38 +506,29 @@ function guardarNuevoProducto() {
       precio_venta:   document.getElementById('np-venta').value,
     })
   })
-  .then(r => r.json())
-  .then(data => {
+  .then(r=>r.json())
+  .then(data=>{
     if (data.ok) {
-      document.getElementById('np-ok').textContent = `Producto ${data.codigo} creado.`;
-      document.getElementById('np-ok').style.display = 'block';
-      // Agregar al array local con estructura compatible
-      PRODUCTOS.push({
-        id:          data.id,
-        codigo:      data.codigo || '',
-        nombre:      data.texto || nombre,
-        modelo:      document.getElementById('np-modelo').value.trim(),
-        color:       document.getElementById('np-color').value.trim(),
-        stock:       0,
-        precio_costo: parseInt(data.costo) || 0,
-        precio_venta: parseInt(data.venta) || 0,
-      });
-      setTimeout(() => {
+      document.getElementById('np-ok').textContent='Producto '+data.codigo+' creado.';
+      document.getElementById('np-ok').style.display='block';
+      PRODUCTOS.push({id:data.id,codigo:data.codigo||'',nombre:nombre,
+        modelo:document.getElementById('np-modelo').value.trim(),
+        color:document.getElementById('np-color').value.trim(),
+        stock:0,precio_costo:parseInt(data.costo)||0,precio_venta:parseInt(data.venta)||0});
+      setTimeout(()=>{
         bootstrap.Modal.getInstance(document.getElementById('modalNuevoProducto')).hide();
         seleccionarProducto(data.id);
-      }, 800);
+      },800);
     } else {
-      document.getElementById('np-error').textContent = data.error || 'Error al crear el producto.';
-      document.getElementById('np-error').style.display = 'block';
+      document.getElementById('np-error').textContent=data.error||'Error al crear el producto.';
+      document.getElementById('np-error').style.display='block';
     }
   })
-  .catch(() => {
-    document.getElementById('np-error').textContent = 'Error de conexión.';
-    document.getElementById('np-error').style.display = 'block';
+  .catch(()=>{
+    document.getElementById('np-error').textContent='Error de conexión.';
+    document.getElementById('np-error').style.display='block';
   });
 }
-
-// ── Inicialización ────────────────────────────────────────────────────────────
 
 {% if compra %}
 const ITEMS_EXISTENTES = [
@@ -751,12 +537,12 @@ const ITEMS_EXISTENTES = [
 const ADICIONALES_EXISTENTES = [
   {% for a in compra.adicionales.all %}{cid:{{ a.concepto_id }},desc:"{{ a.descripcion|escapejs }}",monto:{{ a.monto }}},{% endfor %}
 ];
-ITEMS_EXISTENTES.forEach(item => {
-  const p = PRODUCTOS.find(x => x.id === item.pid);
-  if (p) agregarFilaProducto(p, item.precio, item.cant);
-  else   agregarFilaHuerfana(item.pid, item.precio, item.cant);
+ITEMS_EXISTENTES.forEach(item=>{
+  const p=PRODUCTOS.find(x=>x.id===item.pid);
+  if(p) agregarFilaProducto(p,item.precio,item.cant);
+  else  agregarFilaHuerfana(item.pid,item.precio,item.cant);
 });
-ADICIONALES_EXISTENTES.forEach(ad => agregarAdicionalExistente(ad.cid, ad.desc, ad.monto));
+ADICIONALES_EXISTENTES.forEach(ad=>agregarAdicionalExistente(ad.cid,ad.desc,ad.monto));
 mostrarTipoCambio('{{ compra.moneda }}');
 {% endif %}
 </script>

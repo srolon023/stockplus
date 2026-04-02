@@ -8,120 +8,106 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body { background-color: #f5f6fa; font-family: 'Segoe UI', sans-serif; }
-    .sidebar { min-height: 100vh; background: #1a1a2e; color: #fff; width: 240px; position: fixed; top: 0; left: 0; z-index: 100; padding-top: 20px; transition: all 0.3s; }
-    .sidebar .brand { font-size: 1.2rem; font-weight: 700; padding: 10px 20px 20px; border-bottom: 1px solid #ffffff22; color: #e94560; }
-    .sidebar .nav-link { color: #ffffffaa; padding: 10px 20px; display: flex; align-items: center; gap: 10px; border-radius: 0; transition: all 0.2s; }
-    .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #e9456022; color: #fff; border-left: 3px solid #e94560; }
-    .sidebar .nav-section { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #ffffff55; padding: 15px 20px 5px; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      min-height: 100vh;
+      background: #1a1a2e;
+      color: #fff;
+      width: 240px;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 1050;
+      padding-top: 20px;
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+    }
+    .sidebar .brand {
+      font-size: 1.2rem; font-weight: 700;
+      padding: 10px 20px 20px;
+      border-bottom: 1px solid #ffffff22;
+      color: #e94560;
+    }
+    .sidebar .nav-link {
+      color: #ffffffaa; padding: 10px 20px;
+      display: flex; align-items: center; gap: 10px;
+      transition: all 0.2s;
+    }
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+      background: #e9456022; color: #fff;
+      border-left: 3px solid #e94560;
+    }
+    .sidebar .nav-section {
+      font-size: 0.7rem; text-transform: uppercase;
+      letter-spacing: 1px; color: #ffffff55;
+      padding: 15px 20px 5px;
+    }
+
+    /* ── Backdrop (solo mobile) ── */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1049;
+    }
+    .sidebar-backdrop.show { display: block; }
+
+    /* ── Main content ── */
     .main-content { margin-left: 240px; padding: 20px; }
-    .topbar { background: #fff; padding: 12px 20px; margin: -20px -20px 20px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; justify-content: space-between; }
+
+    /* ── Topbar ── */
+    .topbar {
+      background: #fff; padding: 12px 20px;
+      margin: -20px -20px 20px;
+      border-bottom: 1px solid #dee2e6;
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
     .topbar h4 { margin: 0; font-size: 1.1rem; font-weight: 600; }
+
+    /* ── Botón hamburguesa ── */
+    .btn-hamburger {
+      display: none;
+      background: #fff; border: 1px solid #ddd;
+      border-radius: 8px; padding: 6px 10px;
+      font-size: 1.3rem; cursor: pointer;
+      margin-right: 10px; line-height: 1;
+    }
+
+    /* ── Cards ── */
     .card { border: none; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-radius: 10px; }
-    .card-header { background: #fff; border-bottom: 1px solid #f0f0f0; font-weight: 600; border-radius: 10px 10px 0 0 !important; }
+    .card-header {
+      background: #fff; border-bottom: 1px solid #f0f0f0;
+      font-weight: 600; border-radius: 10px 10px 0 0 !important;
+    }
+
+    /* ── Botones ── */
     .btn-primary { background: #e94560; border-color: #e94560; }
     .btn-primary:hover { background: #c73652; border-color: #c73652; }
-    .badge-pendiente { background: #fff3cd; color: #856404; }
-    .badge-confirmado { background: #d1e7dd; color: #0a3622; }
-    .badge-cancelado { background: #f8d7da; color: #842029; }
+
+    /* ── Misc ── */
     .htmx-indicator { opacity: 0; transition: opacity 0.3s; }
     .htmx-request .htmx-indicator { opacity: 1; }
     #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
-  
-/* === MOBILE SIDEBAR FIX === */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%) !important;
-    position: fixed !important;
-    z-index: 1050;
-  }
 
-  .sidebar.active {
-    transform: translateX(0) !important;
-  }
-
-  .main-content {
-    margin-left: 0 !important;
-  }
-
-  .menu-toggle {
-    display: block !important;
-  }
-}
-
-/* botón hamburguesa */
-.menu-toggle {
-  display: none;
-  background: white;
-  border: 1px solid #ddd;
-  padding: 8px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-right: 10px;
-}
-
-
-/* === FORCE MOBILE SIDEBAR FIX === */
-@media (max-width: 768px) {
-
-  body .sidebar {
-    position: fixed !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 240px !important;
-    height: 100% !important;
-    transform: translateX(-100%) !important;
-    transition: 0.3s !important;
-    z-index: 2000 !important;
-  }
-
-  body .sidebar.show-mobile {
-    transform: translateX(0) !important;
-  }
-
-  body .main-content,
-  body .container,
-  body .container-fluid {
-    margin-left: 0 !important;
-    width: 100% !important;
-  }
-
-  body .menu-toggle {
-    display: block !important;
-  }
-}
-
-/* botón */
-.menu-toggle {
-  display: none;
-  font-size: 22px;
-  background: white;
-  border: 1px solid #ddd;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-
-/* === MOBILE ORDER FIX (POS STYLE) === */
-@media (max-width: 768px) {
-
-  .row > .col-lg-4 {
-    order: 2 !important; /* datos abajo */
-  }
-
-  .row > .col-lg-8 {
-    order: 1 !important; /* productos arriba */
-  }
-
-}
-
-</style>
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .btn-hamburger { display: inline-flex; align-items: center; justify-content: center; }
+    }
+  </style>
   {% block extra_css %}{% endblock %}
 </head>
 <body>
 
+<!-- Backdrop -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
 <!-- Sidebar -->
-<nav class="sidebar">
+<nav class="sidebar" id="sidebar">
   <div class="brand"><i class="bi bi-phone"></i> Case y Más</div>
 
   <div class="nav-section">Principal</div>
@@ -145,7 +131,6 @@
   <a href="/gastos/" class="nav-link {% block nav_gastos %}{% endblock %}">
     <i class="bi bi-receipt"></i> Gastos
   </a>
-
   <a href="/finanzas/" class="nav-link {% block nav_finanzas %}{% endblock %}">
     <i class="bi bi-graph-up"></i> Finanzas
   </a>
@@ -170,8 +155,12 @@
 <!-- Contenido principal -->
 <div class="main-content">
   <div class="topbar">
-<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-    <h4>{% block page_title %}{% endblock %}</h4>
+    <div class="d-flex align-items-center">
+      <button class="btn-hamburger" onclick="openSidebar()" aria-label="Menú">
+        <i class="bi bi-list"></i>
+      </button>
+      <h4>{% block page_title %}{% endblock %}</h4>
+    </div>
     <div class="d-flex align-items-center gap-3">
       <span class="spinner-border spinner-border-sm htmx-indicator text-secondary" role="status"></span>
       <span class="text-muted small"><i class="bi bi-person-circle"></i> {{ request.user.username }}</span>
@@ -190,34 +179,25 @@
   {% block content %}{% endblock %}
 </div>
 
-<!-- Toast container -->
 <div id="toast-container"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
 <script>
-  // Auto-cerrar alertas después de 4 segundos
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebarBackdrop').classList.add('show');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarBackdrop').classList.remove('show');
+  }
   setTimeout(() => {
     document.querySelectorAll('.alert-dismissible').forEach(a => {
-      let alert = bootstrap.Alert.getOrCreateInstance(a);
-      alert.close();
+      bootstrap.Alert.getOrCreateInstance(a).close();
     });
   }, 4000);
 </script>
 {% block extra_js %}{% endblock %}
-
-<script>
-function toggleSidebar() {
-  document.querySelector('.sidebar').classList.toggle('active');
-}
-</script>
-
-
-<script>
-function toggleSidebar() {
-  document.querySelector('.sidebar').classList.toggle('show-mobile');
-}
-</script>
-
 </body>
 </html>
